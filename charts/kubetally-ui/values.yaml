@@ -1,0 +1,66 @@
+# Default values for k-native.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+global:
+  imageRegistry: docker.io/aveshasystems
+  profile:
+    openshift: false
+
+kubeTally:
+  costApiUrl: http://kubeslice-controller-kubetally-pricing-service:30001
+kubeslice:
+  ui:
+    image: kubeslice-ui-ent-egs
+    tag: 0.8.0
+    pullPolicy: IfNotPresent
+  uiv2:
+    image: kubeslice-ui-v2-ent-egs
+    tag: 0.8.0
+    pullPolicy: IfNotPresent
+  dashboard:
+    enabled: false
+    image: kubeslice-kubernetes-dashboard
+    tag: v2.5.1
+    pullPolicy: IfNotPresent
+  uiproxy:
+    image: kubeslice-ui-proxy-egs
+    tag: 0.8.0
+    pullPolicy: IfNotPresent
+    service:
+      ## For kind, set this to NodePort, elsewhere use LoadBalancer or NodePort
+      ## Ref: https://kubernetes.io/docs/user-guide/services/#publishing-services---service-types
+      ##
+      type: LoadBalancer
+      ## if type selected to NodePort then set nodePort value if required
+      # nodePort:
+  apigw:
+    image: kubeslice-api-gw-ent-egs
+    tag: 0.8.0
+    pullPolicy: IfNotPresent
+
+  egsCoreApis:
+    enabled: false
+    image: egs-core-apis
+    tag: 0.8.0
+    pullPolicy: Always
+    service:
+      type: LoadBalancer
+
+  workerinstaller:
+    image: worker-installer
+    tag: 1.2.0
+    pullPolicy: IfNotPresent
+
+  prometheus:
+    url: http://kubeslice-controller-prometheus-service:9090
+
+egs:
+  InventoryManagerAddress: egs-inventory-manager:80
+  QueueManagerAddress: egs-queue-manager:80
+
+# username & password & email values for imagePullSecrets has to provided to create a secret
+imagePullSecrets:
+  password:
+  repository: https://index.docker.io/v1/
+  username:
+  email:
