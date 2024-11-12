@@ -1,0 +1,143 @@
+{{- $ca := genCA "gpr-admission-controller-ca" 3650 -}}
+{{- $cn := printf "gpr-webhook-service" -}}
+{{- $altName1 := printf "%s.%s.svc" $cn .Release.Namespace }}
+{{- $altName2 := printf "%s.%s.svc.cluster.local" $cn .Release.Namespace }}
+{{- $cert := genSignedCert $cn nil (list $altName1 $altName2) 3650 $ca -}}
+apiVersion: v1
+kind: Secret
+metadata:
+  name: gpr-admission-webhook-certs
+  namespace: {{ .Release.Namespace }}
+type: Opaque
+data:
+  tls.crt: {{ $cert.Cert | b64enc }}
+  tls.key: {{ $cert.Key | b64enc }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: gpr-webhook-service
+  namespace: {{ .Release.Namespace }}
+spec:
+  ports:
+  - port: 443
+    targetPort: 9443
+  selector:
+    control-plane: gpr-controller-manager
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingWebhookConfiguration
+metadata:
+  creationTimestamp: null
+  name: gpr-validating-webhook-configuration
+webhooks:
+- admissionReviewVersions:
+    - v1
+  clientConfig:
+    caBundle: {{ $ca.Cert | b64enc }}
+    service:
+      name: gpr-webhook-service
+      namespace: {{ .Release.Namespace }}
+      path: /validate-gpr-kubeslice-io-v1alpha1-gpuprovisioningrequest
+  failurePolicy: Fail
+  name: vgwebhook.kubeslice.io
+  rules:
+    - apiGroups:
+        - gpr.kubeslice.io
+      apiVersions:
+        - v1alpha1
+      operations:
+        - CREATE
+        - UPDATE
+      resources:
+        - gpuprovisioningrequests
+  sideEffects: NoneOnDryRun
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    control-plane: gpr-controller-manager
+  name: egs-gpr-manager
+  namespace: {{ .Release.Namespace }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      control-plane: gpr-controller-manager
+  template:
+    metadata:
+      annotations:
+        kubectl.kubernetes.io/default-container: manager
+        checksum/secret: {{ now | quote | sha256sum }}
+      labels:
+        control-plane: gpr-controller-manager
+    spec:
+      containers:
+      - args:
+        - --metrics-bind-address=:8443
+        - --leader-elect
+        - --health-probe-bind-address=:8081
+        command:
+        - /manager
+        env:
+        - name: ENABLE_WEBHOOKS
+          value: "true"
+        - name: QMGR_GRPC_ADDRESS
+          value: "{{ .Values.egs.queueManager.service.name }}:{{ .Values.egs.queueManager.service.port }}"
+        - name: INVMGR_GRPC_ADDRESS
+          value: "{{ .Values.egs.inventory.service.name }}:{{ .Values.egs.inventory.service.port }}"
+        - name: QMGR_CHECK_PERIOD
+          value: "{{ .Values.egs.gprManager.qmgrCheckPeriod }}"
+        - name: MAX_DELAYED_COUNT
+          value: "{{ .Values.egs.gprManager.maxDelayedCount }}"
+        - name: WAIT_TIME_REFRESH_PERIOD
+          value: "{{ .Values.egs.gprManager.refreshWaitTimeInterval }}"
+        - name: WEBHOOK_CA_BUNDLE
+          value: {{ $ca.Cert | b64enc }}
+        image: "{{ .Values.global.imageRegistry }}/{{ .Values.egs.gprManager.image }}:{{ .Values.egs.gprManager.tag }}"
+        imagePullPolicy: "{{ .Values.egs.gprManager.pullPolicy }}"
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: 8081
+          initialDelaySeconds: 15
+          periodSeconds: 20
+        name: manager
+        readinessProbe:
+          httpGet:
+            path: /readyz
+            port: 8081
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        resources:
+          limits:
+            cpu: 500m
+            memory: 128Mi
+          requests:
+            cpu: 10m
+            memory: 64Mi
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+        volumeMounts:
+          - mountPath: /tmp/k8s-webhook-server/serving-certs
+            name: webhook-certs
+            readOnly: true
+      securityContext:
+        runAsNonRoot: true
+      serviceAccountName: gpr-manager-access
+      terminationGracePeriodSeconds: 10
+      volumes:
+        - name: webhook-certs
+          secret:
+            defaultMode: 420
+            secretName: gpr-admission-webhook-certs
+      {{- if and .Values.imagePullSecrets .Values.imagePullSecrets.repository .Values.imagePullSecrets.username .Values.imagePullSecrets.password }}
+      imagePullSecrets:
+        - name: kubeslice-image-pull-secret
+      {{- end }}
+      tolerations:
+        - operator: "Exists"
