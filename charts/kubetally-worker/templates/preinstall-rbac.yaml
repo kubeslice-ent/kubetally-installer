@@ -92,6 +92,8 @@ rules:
     verbs:
       - get
       - create
+      - update
+      - patch
   - apiGroups:
       - "metrics.k8s.io"
     resources:

@@ -15,13 +15,14 @@ global:
   imageRegistry: docker.io/aveshasystems
 
 webhookImageRegistry: cmd-admission-webhook-k8s
-webhookImageTag: 1.7.1
+webhookImageTag: 1.7.3
 
 nsmInjectContainerImageRegistry: cmd-nsc
-nsmInjectContainerImageTag: 1.5.9
+nsmInjectContainerImageTag: 1.5.13
 
 nsmInjectInitContainerImageRegistry: cmd-nsc-init
-nsmInjectInitContainerImageTag: 1.5.6
+nsmInjectInitContainerImageTag: 1.5.9
+nsmInitContainerUpdateDNSConfig: true
 
 # nsm admission webhook ns
 nsmNs: kubeslice-nsm-webhook-system

@@ -50,10 +50,10 @@ spec:
                 - gateway
       terminationGracePeriodSeconds: 30
       dnsPolicy: Default
-        {{- if and .Values.imagePullSecrets .Values.imagePullSecrets.repository .Values.imagePullSecrets.username .Values.imagePullSecrets.password }}
+      {{- if .Values.imagePullSecretsName }}
       imagePullSecrets:
-      - name: kubeslice-image-pull-secret
-        {{- end }}
+        - name: {{ .Values.imagePullSecretsName }}
+      {{- end }}
       containers:
       - name: "dns"
         image: '{{ .Values.global.imageRegistry }}/{{ .Values.dns.image }}:{{ .Values.dns.tag }}'

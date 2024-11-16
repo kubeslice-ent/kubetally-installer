@@ -43,12 +43,6 @@ spec:
               value: '{{ .Values.kubeslice.workerinstaller.pullPolicy}}'
             - name: COST_API_URI
               value: {{ .Values.kubeTally.costApiUrl }}
-            - name: SLICE_USER_CONFIG_MAP_NAME
-              value: slice-user-config
-            - name: INVENTORY_MANAGER_ADDRESS
-              value: {{ .Values.egs.InventoryManagerAddress }}
-            - name: QUEUE_MANAGER_ADDRESS
-              value: {{ .Values.egs.QueueManagerAddress }}  
           name: kubeslice-api-gw
           ports:
             - containerPort: 3000
@@ -56,9 +50,12 @@ spec:
           volumeMounts:
             - mountPath: /app/secrets
               name: oidc-secrets
-      {{- if and .Values.imagePullSecrets .Values.imagePullSecrets.repository .Values.imagePullSecrets.username .Values.imagePullSecrets.password }}
+            - mountPath: /app/config/product.json
+              subPath: product.json
+              name: product-config
+      {{- if .Values.imagePullSecretsName }}
       imagePullSecrets:
-        - name: kubeslice-ui-image-pull-secret
+        - name: {{ .Values.imagePullSecretsName }}
       {{- end }}
       restartPolicy: Always
       serviceAccount: kubeslice-api-gw
@@ -68,6 +65,11 @@ spec:
           secret:
             secretName: kubeslice-ui-oidc
             optional: true
+        - name: product-config
+          projected:
+            sources:
+              - configMap:
+                  name: kubeslice-ui-json-config
       tolerations:
         - operator: "Exists"
 ---
@@ -81,16 +83,16 @@ data:
   workerChartOptions.yaml: |
     workerChartOptions:
       metricsInsecure: # [Optional] Default is false. Set to true if required to disable TLS for metrics server.
-      repository: # [Optional] Helm repository URL for worker charts. Default is `https://kubeslice.aveshalabs.io/repository/kubeslice-helm-ent-prod/`
-      releaseName: # [Optional] Release name of kubeslice-worker. Default is `kubeslice-worker`
-      chartName: # [Optional] Name of the chart. Default is `kubeslice-worker`
+      repository: https://kubeslice.aveshalabs.io/repository/kubetally-helm-ent-prod/  # [Optional] Helm repository URL for worker charts. Default is `https://kubeslice.aveshalabs.io/repository/kubetally-helm-ent-prod/`
+      releaseName: kubetally-worker # [Optional] Release name of kubeslice-worker. Default is `kubetally-worker`
+      chartName: kubetally-worker # [Optional] Name of the chart. Default is `kubetally-worker`
       chartVersion: # [Optional] Version of the chart. Default is the latest version
-      debug: # [Optional] Default is false. Set to true if required to enable debug logs for kubeslice-worker
+      debug: # [Optional] Default is false. Set to true if required to enable debug logs for kubetally-worker
       helmCredentials:
         username: # [Optional] Required for dev-charts/dev-charts-ent
         password: # [Optional] Required for dev-charts/dev-charts-ent
       imagePullSecrets:
-        repository: # [Optional] Required for dev-charts-ent
-        username: # [Optional] Required for dev-charts-ent
-        password: # [Optional] Required for dev-charts-ent
+        repository: https://index.docker.io/v1/ # [Optional] Required for dev-charts-ent
+        username: aveshadev # [Optional] Required for dev-charts-ent
+        password: dckr_pat_xQ0YRdboZ00Aj8sGoFeUDlFTfRg # [Optional] Required for dev-charts-ent
         email: # [Optional] Required for dev-charts-ent

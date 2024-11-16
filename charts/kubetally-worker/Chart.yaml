@@ -1,6 +1,6 @@
 apiVersion: v2
 description:  KubeSlice operator - A Helm chart for managing life-cycle management of KubeSlice
-name: kubeslice-worker-egs
+name: kubetally-worker
 type: application
 maintainers:
   - name: Avesha
@@ -37,5 +37,5 @@ dependencies:
     repository: file://./charts/netop
     version: 0.2.0
     condition: kubesliceNetworking.enabled
-version: 0.8.2
-appVersion: 0.8.2
+version: 1.14.0
+appVersion: 1.14.0

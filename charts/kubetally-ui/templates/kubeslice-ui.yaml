@@ -42,10 +42,10 @@ spec:
           value: 'ws://kubeslice-api-gw.kubeslice-controller.svc.cluster.local:3000'
         ports:
         - containerPort: 3000
-        {{- if and .Values.imagePullSecrets .Values.imagePullSecrets.repository .Values.imagePullSecrets.username .Values.imagePullSecrets.password }}
+      {{- if .Values.imagePullSecretsName }}
       imagePullSecrets:
-      - name: kubeslice-ui-image-pull-secret
-        {{- end }}
+        - name: {{ .Values.imagePullSecretsName }}
+      {{- end }}
       serviceAccountName: kubeslice-api-gw
       serviceAccount: kubeslice-api-gw
       tolerations:

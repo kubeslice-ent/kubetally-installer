@@ -82,7 +82,7 @@ spec:
             - name: NSM_LABELS
               value: spiffe.io/spiffe-id:true
             - name: NSM_ENVS
-              value: NSM_CONNECT_TO=tcp://nsmgr.kubeslice-system.svc.cluster.local:5001,NSM_LOG_LEVEL=TRACE,NSM_LIVENESSCHECKENABLED=false,NSM_REQUEST_TIMEOUT=60s
+              value: NSM_CONNECT_TO=tcp://nsmgr.kubeslice-system.svc.cluster.local:5001,NSM_LOG_LEVEL=TRACE,NSM_LIVENESSCHECKENABLED=false,NSM_REQUEST_TIMEOUT=60s,NSM_INITLOCALDNSCONFIG={{ .Values.nsmInitContainerUpdateDNSConfig }}
             - name: PROFILE_OPENSHIFT
               value: "{{ .Values.global.profile.openshift | default false }}"
             - name: NSM_REGISTER_WEBHOOK_CLIENT

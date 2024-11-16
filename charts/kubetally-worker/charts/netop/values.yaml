@@ -11,5 +11,5 @@ global:
 netop:
   networkInterface: eth0
   image: netops
-  tag: 0.2.0
+  tag: 0.2.2 
   pullPolicy: IfNotPresent

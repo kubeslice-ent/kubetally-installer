@@ -14,7 +14,7 @@ set -e
 
 # Print introductory statement
 echo "========================================="
-echo "           EGS Installer Script          "
+echo "           KubeTally Installer Script          "
 echo "========================================="
 echo ""
 
@@ -784,258 +784,258 @@ parse_yaml() {
         ENABLE_INSTALL_WORKER="true"
     fi
 
-    # Extract values for kubeslice-controller-egs
-    KUBESLICE_CONTROLLER_SKIP_INSTALLATION=$(yq e '.kubeslice_controller_egs.skip_installation' "$yaml_file")
+    # Extract values for kubeslice-controller
+    KUBESLICE_CONTROLLER_SKIP_INSTALLATION=$(yq e '.kubeslice_controller.skip_installation' "$yaml_file")
     if [ -z "$KUBESLICE_CONTROLLER_SKIP_INSTALLATION" ] || [ "$KUBESLICE_CONTROLLER_SKIP_INSTALLATION" = "null" ]; then
         KUBESLICE_CONTROLLER_SKIP_INSTALLATION="false"
     fi
 
-    KUBESLICE_CONTROLLER_USE_GLOBAL_KUBECONFIG=$(yq e '.kubeslice_controller_egs.use_global_kubeconfig' "$yaml_file")
+    KUBESLICE_CONTROLLER_USE_GLOBAL_KUBECONFIG=$(yq e '.kubeslice_controller.use_global_kubeconfig' "$yaml_file")
     if [ -z "$KUBESLICE_CONTROLLER_USE_GLOBAL_KUBECONFIG" ] || [ "$KUBESLICE_CONTROLLER_USE_GLOBAL_KUBECONFIG" = "null" ]; then
         KUBESLICE_CONTROLLER_USE_GLOBAL_KUBECONFIG="true"
     fi
 
-    KUBESLICE_CONTROLLER_KUBECONFIG=$(yq e '.kubeslice_controller_egs.kubeconfig' "$yaml_file")
+    KUBESLICE_CONTROLLER_KUBECONFIG=$(yq e '.kubeslice_controller.kubeconfig' "$yaml_file")
     KUBESLICE_CONTROLLER_KUBECONFIG="${KUBESLICE_CONTROLLER_KUBECONFIG:-$GLOBAL_KUBECONFIG}"
 
-    KUBESLICE_CONTROLLER_KUBECONTEXT=$(yq e '.kubeslice_controller_egs.kubecontext' "$yaml_file")
+    KUBESLICE_CONTROLLER_KUBECONTEXT=$(yq e '.kubeslice_controller.kubecontext' "$yaml_file")
     if [ -z "$KUBESLICE_CONTROLLER_KUBECONTEXT" ] || [ "$KUBESLICE_CONTROLLER_KUBECONTEXT" = "null" ]; then
         KUBESLICE_CONTROLLER_KUBECONTEXT="$GLOBAL_KUBECONTEXT"
     fi
 
-    KUBESLICE_CONTROLLER_NAMESPACE=$(yq e '.kubeslice_controller_egs.namespace' "$yaml_file")
+    KUBESLICE_CONTROLLER_NAMESPACE=$(yq e '.kubeslice_controller.namespace' "$yaml_file")
     if [ -z "$KUBESLICE_CONTROLLER_NAMESPACE" ] || [ "$KUBESLICE_CONTROLLER_NAMESPACE" = "null" ]; then
         KUBESLICE_CONTROLLER_NAMESPACE="kubeslice-controller"
     fi
 
-    KUBESLICE_CONTROLLER_RELEASE_NAME=$(yq e '.kubeslice_controller_egs.release' "$yaml_file")
+    KUBESLICE_CONTROLLER_RELEASE_NAME=$(yq e '.kubeslice_controller.release' "$yaml_file")
     if [ -z "$KUBESLICE_CONTROLLER_RELEASE_NAME" ] || [ "$KUBESLICE_CONTROLLER_RELEASE_NAME" = "null" ]; then
         KUBESLICE_CONTROLLER_RELEASE_NAME="$KUBESLICE_CONTROLLER_NAMESPACE-release"
     fi
 
-    KUBESLICE_CONTROLLER_CHART_NAME=$(yq e '.kubeslice_controller_egs.chart' "$yaml_file")
+    KUBESLICE_CONTROLLER_CHART_NAME=$(yq e '.kubeslice_controller.chart' "$yaml_file")
     if [ -z "$KUBESLICE_CONTROLLER_CHART_NAME" ] || [ "$KUBESLICE_CONTROLLER_CHART_NAME" = "null" ]; then
         KUBESLICE_CONTROLLER_CHART_NAME="kubeslice-controller"
     fi
 
-    KUBESLICE_CONTROLLER_REPO_URL=$(yq e '.kubeslice_controller_egs.repo_url' "$yaml_file")
+    KUBESLICE_CONTROLLER_REPO_URL=$(yq e '.kubeslice_controller.repo_url' "$yaml_file")
     if [ -z "$KUBESLICE_CONTROLLER_REPO_URL" ] || [ "$KUBESLICE_CONTROLLER_REPO_URL" = "null" ]; then
         KUBESLICE_CONTROLLER_REPO_URL="$GLOBAL_HELM_REPO_URL"
     fi
 
-    KUBESLICE_CONTROLLER_USERNAME=$(yq e '.kubeslice_controller_egs.username' "$yaml_file")
+    KUBESLICE_CONTROLLER_USERNAME=$(yq e '.kubeslice_controller.username' "$yaml_file")
     if [ -z "$KUBESLICE_CONTROLLER_USERNAME" ] || [ "$KUBESLICE_CONTROLLER_USERNAME" = "null" ]; then
         KUBESLICE_CONTROLLER_USERNAME="$GLOBAL_HELM_USERNAME"
     fi
 
-    KUBESLICE_CONTROLLER_PASSWORD=$(yq e '.kubeslice_controller_egs.password' "$yaml_file")
+    KUBESLICE_CONTROLLER_PASSWORD=$(yq e '.kubeslice_controller.password' "$yaml_file")
     if [ -z "$KUBESLICE_CONTROLLER_PASSWORD" ] || [ "$KUBESLICE_CONTROLLER_PASSWORD" = "null" ]; then
         KUBESLICE_CONTROLLER_PASSWORD="$GLOBAL_HELM_PASSWORD"
     fi
 
-    KUBESLICE_CONTROLLER_VALUES_FILE=$(yq e '.kubeslice_controller_egs.values_file' "$yaml_file")
+    KUBESLICE_CONTROLLER_VALUES_FILE=$(yq e '.kubeslice_controller.values_file' "$yaml_file")
     KUBESLICE_CONTROLLER_VALUES_FILE="$BASE_PATH/$KUBESLICE_CONTROLLER_VALUES_FILE"
 
-    KUBESLICE_CONTROLLER_INLINE_VALUES=$(yq e '.kubeslice_controller_egs.inline_values // {}' "$yaml_file")
+    KUBESLICE_CONTROLLER_INLINE_VALUES=$(yq e '.kubeslice_controller.inline_values // {}' "$yaml_file")
 
-    KUBESLICE_CONTROLLER_IMAGE_PULL_SECRET_REPO=$(yq e '.kubeslice_controller_egs.imagePullSecrets.repository' "$yaml_file")
+    KUBESLICE_CONTROLLER_IMAGE_PULL_SECRET_REPO=$(yq e '.kubeslice_controller.imagePullSecrets.repository' "$yaml_file")
     if [ -z "$KUBESLICE_CONTROLLER_IMAGE_PULL_SECRET_REPO" ] || [ "$KUBESLICE_CONTROLLER_IMAGE_PULL_SECRET_REPO" = "null" ]; then
         KUBESLICE_CONTROLLER_IMAGE_PULL_SECRET_REPO="$GLOBAL_IMAGE_PULL_SECRET_REPO"
     fi
 
-    KUBESLICE_CONTROLLER_IMAGE_PULL_SECRET_USERNAME=$(yq e '.kubeslice_controller_egs.imagePullSecrets.username' "$yaml_file")
+    KUBESLICE_CONTROLLER_IMAGE_PULL_SECRET_USERNAME=$(yq e '.kubeslice_controller.imagePullSecrets.username' "$yaml_file")
     if [ -z "$KUBESLICE_CONTROLLER_IMAGE_PULL_SECRET_USERNAME" ] || [ "$KUBESLICE_CONTROLLER_IMAGE_PULL_SECRET_USERNAME" = "null" ]; then
         KUBESLICE_CONTROLLER_IMAGE_PULL_SECRET_USERNAME="$GLOBAL_IMAGE_PULL_SECRET_USERNAME"
     fi
 
-    KUBESLICE_CONTROLLER_IMAGE_PULL_SECRET_PASSWORD=$(yq e '.kubeslice_controller_egs.imagePullSecrets.password' "$yaml_file")
+    KUBESLICE_CONTROLLER_IMAGE_PULL_SECRET_PASSWORD=$(yq e '.kubeslice_controller.imagePullSecrets.password' "$yaml_file")
     if [ -z "$KUBESLICE_CONTROLLER_IMAGE_PULL_SECRET_PASSWORD" ] || [ "$KUBESLICE_CONTROLLER_IMAGE_PULL_SECRET_PASSWORD" = "null" ]; then
         KUBESLICE_CONTROLLER_IMAGE_PULL_SECRET_PASSWORD="$GLOBAL_IMAGE_PULL_SECRET_PASSWORD"
     fi
 
-    KUBESLICE_CONTROLLER_IMAGE_PULL_SECRET_EMAIL=$(yq e '.kubeslice_controller_egs.imagePullSecrets.email' "$yaml_file")
+    KUBESLICE_CONTROLLER_IMAGE_PULL_SECRET_EMAIL=$(yq e '.kubeslice_controller.imagePullSecrets.email' "$yaml_file")
     if [ -z "$KUBESLICE_CONTROLLER_IMAGE_PULL_SECRET_EMAIL" ] || [ "$KUBESLICE_CONTROLLER_IMAGE_PULL_SECRET_EMAIL" = "null" ]; then
         KUBESLICE_CONTROLLER_IMAGE_PULL_SECRET_EMAIL="$GLOBAL_IMAGE_PULL_SECRET_EMAIL"
     fi
 
-    KUBESLICE_CONTROLLER_HELM_FLAGS=$(yq e '.kubeslice_controller_egs.helm_flags' "$yaml_file")
+    KUBESLICE_CONTROLLER_HELM_FLAGS=$(yq e '.kubeslice_controller.helm_flags' "$yaml_file")
 
-    KUBESLICE_CONTROLLER_VERIFY_INSTALL=$(yq e '.kubeslice_controller_egs.verify_install' "$yaml_file")
+    KUBESLICE_CONTROLLER_VERIFY_INSTALL=$(yq e '.kubeslice_controller.verify_install' "$yaml_file")
     if [ -z "$KUBESLICE_CONTROLLER_VERIFY_INSTALL" ] || [ "$KUBESLICE_CONTROLLER_VERIFY_INSTALL" = "null" ]; then
         KUBESLICE_CONTROLLER_VERIFY_INSTALL="$GLOBAL_VERIFY_INSTALL"
     fi
 
-    KUBESLICE_CONTROLLER_VERIFY_INSTALL_TIMEOUT=$(yq e '.kubeslice_controller_egs.verify_install_timeout' "$yaml_file")
+    KUBESLICE_CONTROLLER_VERIFY_INSTALL_TIMEOUT=$(yq e '.kubeslice_controller.verify_install_timeout' "$yaml_file")
     if [ -z "$KUBESLICE_CONTROLLER_VERIFY_INSTALL_TIMEOUT" ] || [ "$KUBESLICE_CONTROLLER_VERIFY_INSTALL_TIMEOUT" = "null" ]; then
         KUBESLICE_CONTROLLER_VERIFY_INSTALL_TIMEOUT="$GLOBAL_VERIFY_INSTALL_TIMEOUT"
     fi
 
-    KUBESLICE_CONTROLLER_SKIP_ON_VERIFY_FAIL=$(yq e '.kubeslice_controller_egs.skip_on_verify_fail' "$yaml_file")
+    KUBESLICE_CONTROLLER_SKIP_ON_VERIFY_FAIL=$(yq e '.kubeslice_controller.skip_on_verify_fail' "$yaml_file")
     if [ -z "$KUBESLICE_CONTROLLER_SKIP_ON_VERIFY_FAIL" ] || [ "$KUBESLICE_CONTROLLER_SKIP_ON_VERIFY_FAIL" = "null" ]; then
         KUBESLICE_CONTROLLER_SKIP_ON_VERIFY_FAIL="$GLOBAL_SKIP_ON_VERIFY_FAIL"
     fi
 
-    # Extract values for kubeslice-ui-egs
-    KUBESLICE_UI_SKIP_INSTALLATION=$(yq e '.kubeslice_ui_egs.skip_installation' "$yaml_file")
+    # Extract values for kubeslice-ui
+    KUBESLICE_UI_SKIP_INSTALLATION=$(yq e '.kubeslice_ui.skip_installation' "$yaml_file")
     if [ -z "$KUBESLICE_UI_SKIP_INSTALLATION" ] || [ "$KUBESLICE_UI_SKIP_INSTALLATION" = "null" ]; then
         KUBESLICE_UI_SKIP_INSTALLATION="false"
     fi
 
-    KUBESLICE_UI_USE_GLOBAL_KUBECONFIG=$(yq e '.kubeslice_ui_egs.use_global_kubeconfig' "$yaml_file")
+    KUBESLICE_UI_USE_GLOBAL_KUBECONFIG=$(yq e '.kubeslice_ui.use_global_kubeconfig' "$yaml_file")
     if [ -z "$KUBESLICE_UI_USE_GLOBAL_KUBECONFIG" ] || [ "$KUBESLICE_UI_USE_GLOBAL_KUBECONFIG" = "null" ]; then
         KUBESLICE_UI_USE_GLOBAL_KUBECONFIG="true"
     fi
 
-    KUBESLICE_UI_KUBECONFIG=$(yq e '.kubeslice_ui_egs.kubeconfig' "$yaml_file")
+    KUBESLICE_UI_KUBECONFIG=$(yq e '.kubeslice_ui.kubeconfig' "$yaml_file")
     KUBESLICE_UI_KUBECONFIG="${KUBESLICE_UI_KUBECONFIG:-$GLOBAL_KUBECONFIG}"
 
-    KUBESLICE_UI_KUBECONTEXT=$(yq e '.kubeslice_ui_egs.kubecontext' "$yaml_file")
+    KUBESLICE_UI_KUBECONTEXT=$(yq e '.kubeslice_ui.kubecontext' "$yaml_file")
     if [ -z "$KUBESLICE_UI_KUBECONTEXT" ] || [ "$KUBESLICE_UI_KUBECONTEXT" = "null" ]; then
         KUBESLICE_UI_KUBECONTEXT="$GLOBAL_KUBECONTEXT"
     fi
 
-    KUBESLICE_UI_NAMESPACE=$(yq e '.kubeslice_ui_egs.namespace' "$yaml_file")
+    KUBESLICE_UI_NAMESPACE=$(yq e '.kubeslice_ui.namespace' "$yaml_file")
     if [ -z "$KUBESLICE_UI_NAMESPACE" ] || [ "$KUBESLICE_UI_NAMESPACE" = "null" ]; then
         KUBESLICE_UI_NAMESPACE="kubeslice-ui"
     fi
 
-    KUBESLICE_UI_RELEASE_NAME=$(yq e '.kubeslice_ui_egs.release' "$yaml_file")
+    KUBESLICE_UI_RELEASE_NAME=$(yq e '.kubeslice_ui.release' "$yaml_file")
     if [ -z "$KUBESLICE_UI_RELEASE_NAME" ] || [ "$KUBESLICE_UI_RELEASE_NAME" = "null" ]; then
         KUBESLICE_UI_RELEASE_NAME="$KUBESLICE_UI_NAMESPACE-release"
     fi
 
-    KUBESLICE_UI_CHART_NAME=$(yq e '.kubeslice_ui_egs.chart' "$yaml_file")
+    KUBESLICE_UI_CHART_NAME=$(yq e '.kubeslice_ui.chart' "$yaml_file")
     if [ -z "$KUBESLICE_UI_CHART_NAME" ] || [ "$KUBESLICE_UI_CHART_NAME" = "null" ]; then
         KUBESLICE_UI_CHART_NAME="kubeslice-ui"
     fi
 
-    KUBESLICE_UI_REPO_URL=$(yq e '.kubeslice_ui_egs.repo_url' "$yaml_file")
+    KUBESLICE_UI_REPO_URL=$(yq e '.kubeslice_ui.repo_url' "$yaml_file")
     if [ -z "$KUBESLICE_UI_REPO_URL" ] || [ "$KUBESLICE_UI_REPO_URL" = "null" ]; then
         KUBESLICE_UI_REPO_URL="$GLOBAL_HELM_REPO_URL"
     fi
 
-    KUBESLICE_UI_USERNAME=$(yq e '.kubeslice_ui_egs.username' "$yaml_file")
+    KUBESLICE_UI_USERNAME=$(yq e '.kubeslice_ui.username' "$yaml_file")
     if [ -z "$KUBESLICE_UI_USERNAME" ] || [ "$KUBESLICE_UI_USERNAME" = "null" ]; then
         KUBESLICE_UI_USERNAME="$GLOBAL_HELM_USERNAME"
     fi
 
-    KUBESLICE_UI_PASSWORD=$(yq e '.kubeslice_ui_egs.password' "$yaml_file")
+    KUBESLICE_UI_PASSWORD=$(yq e '.kubeslice_ui.password' "$yaml_file")
     if [ -z "$KUBESLICE_UI_PASSWORD" ] || [ "$KUBESLICE_UI_PASSWORD" = "null" ]; then
         KUBESLICE_UI_PASSWORD="$GLOBAL_HELM_PASSWORD"
     fi
 
-    KUBESLICE_UI_VALUES_FILE=$(yq e '.kubeslice_ui_egs.values_file' "$yaml_file")
+    KUBESLICE_UI_VALUES_FILE=$(yq e '.kubeslice_ui.values_file' "$yaml_file")
     KUBESLICE_UI_VALUES_FILE="$BASE_PATH/$KUBESLICE_UI_VALUES_FILE"
 
-    KUBESLICE_UI_INLINE_VALUES=$(yq e '.kubeslice_ui_egs.inline_values // {}' "$yaml_file")
+    KUBESLICE_UI_INLINE_VALUES=$(yq e '.kubeslice_ui.inline_values // {}' "$yaml_file")
 
-    KUBESLICE_UI_IMAGE_PULL_SECRET_REPO=$(yq e '.kubeslice_ui_egs.imagePullSecrets.repository' "$yaml_file")
+    KUBESLICE_UI_IMAGE_PULL_SECRET_REPO=$(yq e '.kubeslice_ui.imagePullSecrets.repository' "$yaml_file")
     if [ -z "$KUBESLICE_UI_IMAGE_PULL_SECRET_REPO" ] || [ "$KUBESLICE_UI_IMAGE_PULL_SECRET_REPO" = "null" ]; then
         KUBESLICE_UI_IMAGE_PULL_SECRET_REPO="$GLOBAL_IMAGE_PULL_SECRET_REPO"
     fi
 
-    KUBESLICE_UI_IMAGE_PULL_SECRET_USERNAME=$(yq e '.kubeslice_ui_egs.imagePullSecrets.username' "$yaml_file")
+    KUBESLICE_UI_IMAGE_PULL_SECRET_USERNAME=$(yq e '.kubeslice_ui.imagePullSecrets.username' "$yaml_file")
     if [ -z "$KUBESLICE_UI_IMAGE_PULL_SECRET_USERNAME" ] || [ "$KUBESLICE_UI_IMAGE_PULL_SECRET_USERNAME" = "null" ]; then
         KUBESLICE_UI_IMAGE_PULL_SECRET_USERNAME="$GLOBAL_IMAGE_PULL_SECRET_USERNAME"
     fi
 
-    KUBESLICE_UI_IMAGE_PULL_SECRET_PASSWORD=$(yq e '.kubeslice_ui_egs.imagePullSecrets.password' "$yaml_file")
+    KUBESLICE_UI_IMAGE_PULL_SECRET_PASSWORD=$(yq e '.kubeslice_ui.imagePullSecrets.password' "$yaml_file")
     if [ -z "$KUBESLICE_UI_IMAGE_PULL_SECRET_PASSWORD" ] || [ "$KUBESLICE_UI_IMAGE_PULL_SECRET_PASSWORD" = "null" ]; then
         KUBESLICE_UI_IMAGE_PULL_SECRET_PASSWORD="$GLOBAL_IMAGE_PULL_SECRET_PASSWORD"
     fi
 
-    KUBESLICE_UI_IMAGE_PULL_SECRET_EMAIL=$(yq e '.kubeslice_ui_egs.imagePullSecrets.email' "$yaml_file")
+    KUBESLICE_UI_IMAGE_PULL_SECRET_EMAIL=$(yq e '.kubeslice_ui.imagePullSecrets.email' "$yaml_file")
     if [ -z "$KUBESLICE_UI_IMAGE_PULL_SECRET_EMAIL" ] || [ "$KUBESLICE_UI_IMAGE_PULL_SECRET_EMAIL" = "null" ]; then
         KUBESLICE_UI_IMAGE_PULL_SECRET_EMAIL="$GLOBAL_IMAGE_PULL_SECRET_EMAIL"
     fi
 
-    KUBESLICE_UI_HELM_FLAGS=$(yq e '.kubeslice_ui_egs.helm_flags' "$yaml_file")
+    KUBESLICE_UI_HELM_FLAGS=$(yq e '.kubeslice_ui.helm_flags' "$yaml_file")
 
-    KUBESLICE_UI_VERIFY_INSTALL=$(yq e '.kubeslice_ui_egs.verify_install' "$yaml_file")
+    KUBESLICE_UI_VERIFY_INSTALL=$(yq e '.kubeslice_ui.verify_install' "$yaml_file")
     if [ -z "$KUBESLICE_UI_VERIFY_INSTALL" ] || [ "$KUBESLICE_UI_VERIFY_INSTALL" = "null" ]; then
         KUBESLICE_UI_VERIFY_INSTALL="$GLOBAL_VERIFY_INSTALL"
     fi
 
-    KUBESLICE_UI_VERIFY_INSTALL_TIMEOUT=$(yq e '.kubeslice_ui_egs.verify_install_timeout' "$yaml_file")
+    KUBESLICE_UI_VERIFY_INSTALL_TIMEOUT=$(yq e '.kubeslice_ui.verify_install_timeout' "$yaml_file")
     if [ -z "$KUBESLICE_UI_VERIFY_INSTALL_TIMEOUT" ] || [ "$KUBESLICE_UI_VERIFY_INSTALL_TIMEOUT" = "null" ]; then
         KUBESLICE_UI_VERIFY_INSTALL_TIMEOUT="$GLOBAL_VERIFY_INSTALL_TIMEOUT"
     fi
 
-    KUBESLICE_UI_SKIP_ON_VERIFY_FAIL=$(yq e '.kubeslice_ui_egs.skip_on_verify_fail' "$yaml_file")
+    KUBESLICE_UI_SKIP_ON_VERIFY_FAIL=$(yq e '.kubeslice_ui.skip_on_verify_fail' "$yaml_file")
     if [ -z "$KUBESLICE_UI_SKIP_ON_VERIFY_FAIL" ] || [ "$KUBESLICE_UI_SKIP_ON_VERIFY_FAIL" = "null" ]; then
         KUBESLICE_UI_SKIP_ON_VERIFY_FAIL="$GLOBAL_SKIP_ON_VERIFY_FAIL"
     fi
 
-    # Extract values for kubeslice-worker-egs
-    WORKERS_COUNT=$(yq e '.kubeslice_worker_egs | length' "$yaml_file")
+    # Extract values for kubeslice-worker
+    WORKERS_COUNT=$(yq e '.kubeslice_worker | length' "$yaml_file")
 
     KUBESLICE_WORKERS=()
     for ((i = 0; i < WORKERS_COUNT; i++)); do
-        WORKER_NAME=$(yq e ".kubeslice_worker_egs[$i].name" "$yaml_file")
-        WORKER_SKIP_INSTALLATION=$(yq e ".kubeslice_worker_egs[$i].skip_installation" "$yaml_file")
-        WORKER_USE_GLOBAL_KUBECONFIG=$(yq e ".kubeslice_worker_egs[$i].use_global_kubeconfig" "$yaml_file")
+        WORKER_NAME=$(yq e ".kubeslice_worker[$i].name" "$yaml_file")
+        WORKER_SKIP_INSTALLATION=$(yq e ".kubeslice_worker[$i].skip_installation" "$yaml_file")
+        WORKER_USE_GLOBAL_KUBECONFIG=$(yq e ".kubeslice_worker[$i].use_global_kubeconfig" "$yaml_file")
         if [ -z "$WORKER_USE_GLOBAL_KUBECONFIG" ] || [ "$WORKER_USE_GLOBAL_KUBECONFIG" = "null" ]; then
             WORKER_USE_GLOBAL_KUBECONFIG="true"
         fi
-        WORKER_KUBECONFIG=$(yq e ".kubeslice_worker_egs[$i].kubeconfig" "$yaml_file")
+        WORKER_KUBECONFIG=$(yq e ".kubeslice_worker[$i].kubeconfig" "$yaml_file")
         WORKER_KUBECONFIG="${WORKER_KUBECONFIG:-$GLOBAL_KUBECONFIG}"
 
-        WORKER_KUBECONTEXT=$(yq e ".kubeslice_worker_egs[$i].kubecontext" "$yaml_file")
+        WORKER_KUBECONTEXT=$(yq e ".kubeslice_worker[$i].kubecontext" "$yaml_file")
         if [ -z "$WORKER_KUBECONTEXT" ] || [ "$WORKER_KUBECONTEXT" = "null" ]; then
             WORKER_KUBECONTEXT="$GLOBAL_KUBECONTEXT"
         fi
 
-        WORKER_NAMESPACE=$(yq e ".kubeslice_worker_egs[$i].namespace" "$yaml_file")
-        WORKER_RELEASE_NAME=$(yq e ".kubeslice_worker_egs[$i].release" "$yaml_file")
-        WORKER_CHART_NAME=$(yq e ".kubeslice_worker_egs[$i].chart" "$yaml_file")
-        WORKER_REPO_URL=$(yq e ".kubeslice_worker_egs[$i].repo_url" "$yaml_file")
+        WORKER_NAMESPACE=$(yq e ".kubeslice_worker[$i].namespace" "$yaml_file")
+        WORKER_RELEASE_NAME=$(yq e ".kubeslice_worker[$i].release" "$yaml_file")
+        WORKER_CHART_NAME=$(yq e ".kubeslice_worker[$i].chart" "$yaml_file")
+        WORKER_REPO_URL=$(yq e ".kubeslice_worker[$i].repo_url" "$yaml_file")
         if [ -z "$WORKER_REPO_URL" ] || [ "$WORKER_REPO_URL" = "null" ]; then
             WORKER_REPO_URL="$GLOBAL_HELM_REPO_URL"
         fi
 
-        WORKER_USERNAME=$(yq e ".kubeslice_worker_egs[$i].username" "$yaml_file")
+        WORKER_USERNAME=$(yq e ".kubeslice_worker[$i].username" "$yaml_file")
         if [ -z "$WORKER_USERNAME" ] || [ "$WORKER_USERNAME" = "null" ]; then
             WORKER_USERNAME="$GLOBAL_HELM_USERNAME"
         fi
 
-        WORKER_PASSWORD=$(yq e ".kubeslice_worker_egs[$i].password" "$yaml_file")
+        WORKER_PASSWORD=$(yq e ".kubeslice_worker[$i].password" "$yaml_file")
         if [ -z "$WORKER_PASSWORD" ] || [ "$WORKER_PASSWORD" = "null" ]; then
             WORKER_PASSWORD="$GLOBAL_HELM_PASSWORD"
         fi
 
-        WORKER_VALUES_FILE=$(yq e ".kubeslice_worker_egs[$i].values_file" "$yaml_file")
+        WORKER_VALUES_FILE=$(yq e ".kubeslice_worker[$i].values_file" "$yaml_file")
         WORKER_VALUES_FILE="$BASE_PATH/$WORKER_VALUES_FILE"
 
-        WORKER_INLINE_VALUES=$(yq e ".kubeslice_worker_egs[$i].inline_values // {}" "$yaml_file")
+        WORKER_INLINE_VALUES=$(yq e ".kubeslice_worker[$i].inline_values // {}" "$yaml_file")
 
-        WORKER_IMAGE_PULL_SECRET_REPO=$(yq e ".kubeslice_worker_egs[$i].imagePullSecrets.repository" "$yaml_file")
+        WORKER_IMAGE_PULL_SECRET_REPO=$(yq e ".kubeslice_worker[$i].imagePullSecrets.repository" "$yaml_file")
         if [ -z "$WORKER_IMAGE_PULL_SECRET_REPO" ] || [ "$WORKER_IMAGE_PULL_SECRET_REPO" = "null" ]; then
             WORKER_IMAGE_PULL_SECRET_REPO="$GLOBAL_IMAGE_PULL_SECRET_REPO"
         fi
 
-        WORKER_IMAGE_PULL_SECRET_USERNAME=$(yq e ".kubeslice_worker_egs[$i].imagePullSecrets.username" "$yaml_file")
+        WORKER_IMAGE_PULL_SECRET_USERNAME=$(yq e ".kubeslice_worker[$i].imagePullSecrets.username" "$yaml_file")
         if [ -z "$WORKER_IMAGE_PULL_SECRET_USERNAME" ] || [ "$WORKER_IMAGE_PULL_SECRET_USERNAME" = "null" ]; then
             WORKER_IMAGE_PULL_SECRET_USERNAME="$GLOBAL_IMAGE_PULL_SECRET_USERNAME"
         fi
 
-        WORKER_IMAGE_PULL_SECRET_PASSWORD=$(yq e ".kubeslice_worker_egs[$i].imagePullSecrets.password" "$yaml_file")
+        WORKER_IMAGE_PULL_SECRET_PASSWORD=$(yq e ".kubeslice_worker[$i].imagePullSecrets.password" "$yaml_file")
         if [ -z "$WORKER_IMAGE_PULL_SECRET_PASSWORD" ] || [ "$WORKER_IMAGE_PULL_SECRET_PASSWORD" = "null" ]; then
             WORKER_IMAGE_PULL_SECRET_PASSWORD="$GLOBAL_IMAGE_PULL_SECRET_PASSWORD"
         fi
 
-        WORKER_IMAGE_PULL_SECRET_EMAIL=$(yq e ".kubeslice_worker_egs[$i].imagePullSecrets.email" "$yaml_file")
+        WORKER_IMAGE_PULL_SECRET_EMAIL=$(yq e ".kubeslice_worker[$i].imagePullSecrets.email" "$yaml_file")
         if [ -z "$WORKER_IMAGE_PULL_SECRET_EMAIL" ] || [ "$WORKER_IMAGE_PULL_SECRET_EMAIL" = "null" ]; then
             WORKER_IMAGE_PULL_SECRET_EMAIL="$GLOBAL_IMAGE_PULL_SECRET_EMAIL"
         fi
 
-        WORKER_HELM_FLAGS=$(yq e ".kubeslice_worker_egs[$i].helm_flags" "$yaml_file")
+        WORKER_HELM_FLAGS=$(yq e ".kubeslice_worker[$i].helm_flags" "$yaml_file")
 
-        WORKER_VERIFY_INSTALL=$(yq e ".kubeslice_worker_egs[$i].verify_install" "$yaml_file")
+        WORKER_VERIFY_INSTALL=$(yq e ".kubeslice_worker[$i].verify_install" "$yaml_file")
         if [ -z "$WORKER_VERIFY_INSTALL" ] || [ "$WORKER_VERIFY_INSTALL" = "null" ]; then
             WORKER_VERIFY_INSTALL="$GLOBAL_VERIFY_INSTALL"
         fi
 
-        WORKER_VERIFY_INSTALL_TIMEOUT=$(yq e ".kubeslice_worker_egs[$i].verify_install_timeout" "$yaml_file")
+        WORKER_VERIFY_INSTALL_TIMEOUT=$(yq e ".kubeslice_worker[$i].verify_install_timeout" "$yaml_file")
         if [ -z "$WORKER_VERIFY_INSTALL_TIMEOUT" ] || [ "$WORKER_VERIFY_INSTALL_TIMEOUT" = "null" ]; then
             WORKER_VERIFY_INSTALL_TIMEOUT="$GLOBAL_VERIFY_INSTALL_TIMEOUT"
         fi
@@ -1044,7 +1044,7 @@ parse_yaml() {
             WORKER_SKIP_INSTALLATION="false"
         fi
 
-        WORKER_SKIP_ON_VERIFY_FAIL=$(yq e ".kubeslice_worker_egs[$i].skip_on_verify_fail" "$yaml_file")
+        WORKER_SKIP_ON_VERIFY_FAIL=$(yq e ".kubeslice_worker[$i].skip_on_verify_fail" "$yaml_file")
         if [ -z "$WORKER_SKIP_ON_VERIFY_FAIL" ] || [ "$WORKER_SKIP_ON_VERIFY_FAIL" = "null" ]; then
             WORKER_SKIP_ON_VERIFY_FAIL="$GLOBAL_SKIP_ON_VERIFY_FAIL"
         fi
@@ -1793,13 +1793,13 @@ display_summary() {
     # Worker Cluster Installations
     if [ "$ENABLE_INSTALL_WORKER" = "true" ]; then
         for ((i = 0; i < ${#KUBESLICE_WORKERS[@]}; i++)); do
-            worker_name=$(yq e ".kubeslice_worker_egs[$i].name" "$EGS_INPUT_YAML")
-            skip_installation=$(yq e ".kubeslice_worker_egs[$i].skip_installation" "$EGS_INPUT_YAML")
-            kubeconfig=$(yq e ".kubeslice_worker_egs[$i].kubeconfig" "$EGS_INPUT_YAML")
-            kubecontext=$(yq e ".kubeslice_worker_egs[$i].kubecontext" "$EGS_INPUT_YAML")
-            use_global_kubeconfig=$(yq e ".kubeslice_worker_egs[$i].use_global_kubeconfig" "$EGS_INPUT_YAML")
-            namespace=$(yq e ".kubeslice_worker_egs[$i].namespace" "$EGS_INPUT_YAML")
-            release_name=$(yq e ".kubeslice_worker_egs[$i].release" "$EGS_INPUT_YAML")
+            worker_name=$(yq e ".kubeslice_worker[$i].name" "$KUBETALLY_INPUT_YAML")
+            skip_installation=$(yq e ".kubeslice_worker[$i].skip_installation" "$KUBETALLY_INPUT_YAML")
+            kubeconfig=$(yq e ".kubeslice_worker[$i].kubeconfig" "$KUBETALLY_INPUT_YAML")
+            kubecontext=$(yq e ".kubeslice_worker[$i].kubecontext" "$KUBETALLY_INPUT_YAML")
+            use_global_kubeconfig=$(yq e ".kubeslice_worker[$i].use_global_kubeconfig" "$KUBETALLY_INPUT_YAML")
+            namespace=$(yq e ".kubeslice_worker[$i].namespace" "$KUBETALLY_INPUT_YAML")
+            release_name=$(yq e ".kubeslice_worker[$i].release" "$KUBETALLY_INPUT_YAML")
 
             if [ "$skip_installation" = "false" ]; then
                 read -r kubeconfig_path kubecontext < <(kubeaccess_precheck \
@@ -1821,13 +1821,13 @@ display_summary() {
     # Additional Application Installations
     if [ "$ENABLE_INSTALL_ADDITIONAL_APPS" = "true" ]; then
         for ((i = 0; i < ${#ADDITIONAL_APPS[@]}; i++)); do
-            app_name=$(yq e ".additional_apps[$i].name" "$EGS_INPUT_YAML")
-            use_global_kubeconfig=$(yq e ".additional_apps[$i].use_global_kubeconfig" "$EGS_INPUT_YAML")
-            skip_installation=$(yq e ".additional_apps[$i].skip_installation" "$EGS_INPUT_YAML")
-            kubeconfig=$(yq e ".additional_apps[$i].kubeconfig" "$EGS_INPUT_YAML")
-            kubecontext=$(yq e ".additional_apps[$i].kubecontext" "$EGS_INPUT_YAML")
-            namespace=$(yq e ".additional_apps[$i].namespace" "$EGS_INPUT_YAML")
-            release_name=$(yq e ".additional_apps[$i].release" "$EGS_INPUT_YAML")
+            app_name=$(yq e ".additional_apps[$i].name" "$KUBETALLY_INPUT_YAML")
+            use_global_kubeconfig=$(yq e ".additional_apps[$i].use_global_kubeconfig" "$KUBETALLY_INPUT_YAML")
+            skip_installation=$(yq e ".additional_apps[$i].skip_installation" "$KUBETALLY_INPUT_YAML")
+            kubeconfig=$(yq e ".additional_apps[$i].kubeconfig" "$KUBETALLY_INPUT_YAML")
+            kubecontext=$(yq e ".additional_apps[$i].kubecontext" "$KUBETALLY_INPUT_YAML")
+            namespace=$(yq e ".additional_apps[$i].namespace" "$KUBETALLY_INPUT_YAML")
+            release_name=$(yq e ".additional_apps[$i].release" "$KUBETALLY_INPUT_YAML")
 
             if [ "$skip_installation" = "false" ]; then
                 read -r kubeconfig_path kubecontext < <(kubeaccess_precheck \
@@ -2445,7 +2445,7 @@ prepare_worker_values_file() {
         IFS="|" read -r worker_name skip_installation use_global_kubeconfig kubeconfig kubecontext namespace release_name chart_name repo_url username password values_file inline_values image_pull_secret_repo image_pull_secret_username image_pull_secret_password image_pull_secret_email helm_flags verify_install verify_install_timeout skip_on_verify_fail <<<"${KUBESLICE_WORKERS[$worker_index]}"
 
         # Extract worker-specific values for the new parameters
-        worker=$(yq e ".kubeslice_worker_egs[$worker_index]" "$EGS_INPUT_YAML")
+        worker=$(yq e ".kubeslice_worker[$worker_index]" "$KUBETALLY_INPUT_YAML")
         worker_name=$(echo "$worker" | yq e '.name' -)
         skip_installation=$(echo "$worker" | yq e '.skip_installation' -)
         use_global_kubeconfig=$(echo "$worker" | yq e '.use_global_kubeconfig' -)
@@ -2463,8 +2463,8 @@ prepare_worker_values_file() {
         specific_use_local_charts=$(echo "$worker" | yq e '.specific_use_local_charts' -)
 
         if [ "$use_global_kubeconfig" = "true" ]; then
-                    kubeconfigname=$(yq e '.global_kubeconfig' "$EGS_INPUT_YAML")
-                    kubecontextname=$(yq e '.global_kubecontext' "$EGS_INPUT_YAML")
+                    kubeconfigname=$(yq e '.global_kubeconfig' "$KUBETALLY_INPUT_YAML")
+                    kubecontextname=$(yq e '.global_kubecontext' "$KUBETALLY_INPUT_YAML")
         else
                 kubeconfigname=$(echo "$worker" | yq e '.kubeconfig' -)
                 kubecontextname=$(echo "$worker" | yq e '.kubecontext' -)
@@ -2481,8 +2481,8 @@ prepare_worker_values_file() {
         echo "Grafana URL: ${grafana_url}"
 
         # Update YAML configuration with new Grafana URL
-        #yq eval ".kubeslice_worker_egs.inline_values.egs.grafanaDashboardBaseUrl = \"${grafana_url}\" | del(.null)" --inplace "${EGS_INPUT_YAML}"
-        yq eval ".kubeslice_worker_egs[$worker_index].inline_values.egs.grafanaDashboardBaseUrl = \"${grafana_url}\" | del(.null)" --inplace "${EGS_INPUT_YAML}"
+        #yq eval ".kubeslice_worker.inline_values.egs.grafanaDashboardBaseUrl = \"${grafana_url}\" | del(.null)" --inplace "${KUBETALLY_INPUT_YAML}"
+        yq eval ".kubeslice_worker[$worker_index].inline_values.egs.grafanaDashboardBaseUrl = \"${grafana_url}\" | del(.null)" --inplace "${KUBETALLY_INPUT_YAML}"
         
         echo "  Extracted values for worker $worker_name:"
         echo "  Worker Name: $worker_name"
@@ -2571,7 +2571,7 @@ prepare_worker_values_file() {
         fi
 
         # Extract and output inline values from the EGS input YAML
-        inline_values=$(yq e ".kubeslice_worker_egs[$worker_index].inline_values | select(. != null)" "$EGS_INPUT_YAML")
+        inline_values=$(yq e ".kubeslice_worker[$worker_index].inline_values | select(. != null)" "$KUBETALLY_INPUT_YAML")
         echo "Inline values extracted for worker $worker_name:"
         echo "$inline_values"
 
@@ -2743,7 +2743,7 @@ merge_inline_values() {
 while [[ "$#" -gt 0 ]]; do
     case $1 in
     --input-yaml)
-        EGS_INPUT_YAML="$2"
+        KUBETALLY_INPUT_YAML="$2"
         shift
         ;;
     --help)
@@ -2760,19 +2760,19 @@ while [[ "$#" -gt 0 ]]; do
 done
 
 # Validation for input-yaml flag
-if [ -z "$EGS_INPUT_YAML" ]; then
+if [ -z "$KUBETALLY_INPUT_YAML" ]; then
     echo "❌ Error: --input-yaml flag is required."
     echo "Use --help for usage information."
     exit 1
 fi
 
 # If an input YAML file is provided, parse it
-if [ -n "$EGS_INPUT_YAML" ]; then
-    echo "📂 Parsing input YAML file: $EGS_INPUT_YAML"
+if [ -n "$KUBETALLY_INPUT_YAML" ]; then
+    echo "📂 Parsing input YAML file: $KUBETALLY_INPUT_YAML"
     # Run prerequisite checks if precheck is enabled
     prerequisite_check
     if command -v yq &>/dev/null; then
-        parse_yaml "$EGS_INPUT_YAML"
+        parse_yaml "$KUBETALLY_INPUT_YAML"
         echo "🔍 Calling validate_paths..."
         validate_paths
     else
@@ -2788,29 +2788,29 @@ if [ "$KUBESLICE_PRECHECK" = "true" ]; then
 fi
 
 # Validate the run_commands flag before invoking the function
-run_commands=$(yq e '.run_commands // "false"' "$EGS_INPUT_YAML")
+run_commands=$(yq e '.run_commands // "false"' "$KUBETALLY_INPUT_YAML")
 
 if [ "$run_commands" != "true" ]; then
     echo "⏩ Command execution is disabled (run_commands is not true). Skipping."
 else
     echo "🚀 Running Kubernetes commands from YAML..."
     # Call the function if validation passes
-    run_k8s_commands_from_yaml "$EGS_INPUT_YAML"
+    run_k8s_commands_from_yaml "$KUBETALLY_INPUT_YAML"
 fi
 
 # Check if the enable_custom_apps flag is defined and set to true
-enable_custom_apps=$(yq e '.enable_custom_apps // "false"' "$EGS_INPUT_YAML")
+enable_custom_apps=$(yq e '.enable_custom_apps // "false"' "$KUBETALLY_INPUT_YAML")
 
 if [ "$enable_custom_apps" = "true" ]; then
     echo "🚀 Custom apps are enabled. Iterating over manifests and applying them..."
 
     # Check if the manifests section is defined
-    manifests_exist=$(yq e '.manifests // "null"' "$EGS_INPUT_YAML")
+    manifests_exist=$(yq e '.manifests // "null"' "$KUBETALLY_INPUT_YAML")
 
     if [ "$manifests_exist" = "null" ]; then
         echo "⚠️  No 'manifests' section found in the YAML file. Skipping manifest application."
     else
-        manifests_length=$(yq e '.manifests | length' "$EGS_INPUT_YAML")
+        manifests_length=$(yq e '.manifests | length' "$KUBETALLY_INPUT_YAML")
 
         if [ "$manifests_length" -eq 0 ]; then
             echo "⚠️  'manifests' section is defined but contains no entries. Skipping manifest application."
@@ -2818,22 +2818,22 @@ if [ "$enable_custom_apps" = "true" ]; then
             for index in $(seq 0 $((manifests_length - 1))); do
                 echo "🔄 Applying manifest $((index + 1)) of $manifests_length..."
 
-                appname=$(yq e ".manifests[$index].appname" "$EGS_INPUT_YAML")
-                manifest=$(yq e ".manifests[$index].manifest" "$EGS_INPUT_YAML")
-                overrides_yaml=$(yq e ".manifests[$index].overrides_yaml" "$EGS_INPUT_YAML")
-                inline_yaml=$(yq e ".manifests[$index].inline_yaml" "$EGS_INPUT_YAML")
-                use_global_kubeconfig=$(yq e ".manifests[$index].use_global_kubeconfig" "$EGS_INPUT_YAML")
-                kubeconfig=$(yq e ".manifests[$index].kubeconfig" "$EGS_INPUT_YAML")
-                kubecontext=$(yq e ".manifests[$index].kubecontext" "$EGS_INPUT_YAML")
-                skip_installation=$(yq e ".manifests[$index].skip_installation" "$EGS_INPUT_YAML")
-                verify_install=$(yq e ".manifests[$index].verify_install" "$EGS_INPUT_YAML")
-                verify_install_timeout=$(yq e ".manifests[$index].verify_install_timeout" "$EGS_INPUT_YAML")
-                skip_on_verify_fail=$(yq e ".manifests[$index].skip_on_verify_fail" "$EGS_INPUT_YAML")
-                namespace=$(yq e ".manifests[$index].namespace" "$EGS_INPUT_YAML")
+                appname=$(yq e ".manifests[$index].appname" "$KUBETALLY_INPUT_YAML")
+                manifest=$(yq e ".manifests[$index].manifest" "$KUBETALLY_INPUT_YAML")
+                overrides_yaml=$(yq e ".manifests[$index].overrides_yaml" "$KUBETALLY_INPUT_YAML")
+                inline_yaml=$(yq e ".manifests[$index].inline_yaml" "$KUBETALLY_INPUT_YAML")
+                use_global_kubeconfig=$(yq e ".manifests[$index].use_global_kubeconfig" "$KUBETALLY_INPUT_YAML")
+                kubeconfig=$(yq e ".manifests[$index].kubeconfig" "$KUBETALLY_INPUT_YAML")
+                kubecontext=$(yq e ".manifests[$index].kubecontext" "$KUBETALLY_INPUT_YAML")
+                skip_installation=$(yq e ".manifests[$index].skip_installation" "$KUBETALLY_INPUT_YAML")
+                verify_install=$(yq e ".manifests[$index].verify_install" "$KUBETALLY_INPUT_YAML")
+                verify_install_timeout=$(yq e ".manifests[$index].verify_install_timeout" "$KUBETALLY_INPUT_YAML")
+                skip_on_verify_fail=$(yq e ".manifests[$index].skip_on_verify_fail" "$KUBETALLY_INPUT_YAML")
+                namespace=$(yq e ".manifests[$index].namespace" "$KUBETALLY_INPUT_YAML")
 
                 # Create a temporary YAML with only the current manifest entry
                 temp_yaml="$INSTALLATION_FILES_PATH/temp_manifest_$index.yaml"
-                yq e ".manifests = [ .manifests[$index] ]" "$EGS_INPUT_YAML" >"$temp_yaml"
+                yq e ".manifests = [ .manifests[$index] ]" "$KUBETALLY_INPUT_YAML" >"$temp_yaml"
 
                 echo "🔍 Applying manifests from YAML..."
                 # Call apply_manifests_from_yaml function for each manifest
@@ -2853,7 +2853,7 @@ if [ "$ENABLE_INSTALL_ADDITIONAL_APPS" = "true" ] && [ "${#ADDITIONAL_APPS[@]}" 
     echo "🚀 Starting installation of additional applications..."
     for app_index in $(seq 0 $((${#ADDITIONAL_APPS[@]} - 1))); do
         # Extracting application configuration from YAML using yq
-        app=$(yq e ".additional_apps[$app_index]" "$EGS_INPUT_YAML")
+        app=$(yq e ".additional_apps[$app_index]" "$KUBETALLY_INPUT_YAML")
         app_name=$(echo "$app" | yq e '.name' -)
         skip_installation=$(echo "$app" | yq e '.skip_installation' -)
         use_global_kubeconfig=$(echo "$app" | yq e '.use_global_kubeconfig' -)
@@ -2863,7 +2863,7 @@ if [ "$ENABLE_INSTALL_ADDITIONAL_APPS" = "true" ] && [ "${#ADDITIONAL_APPS[@]}" 
         values_file=$(echo "$app" | yq e '.values_file' -)
         helm_flags=$(echo "$app" | yq e '.helm_flags' -)
         verify_install=$(echo "$app" | yq e '.verify_install' -)
-        # kubeconfigname=$(yq e '.global_kubeconfig' "$EGS_INPUT_YAML")
+        # kubeconfigname=$(yq e '.global_kubeconfig' "$KUBETALLY_INPUT_YAML")
         
         verify_install_timeout=$(echo "$app" | yq e '.verify_install_timeout' -)
         skip_on_verify_fail=$(echo "$app" | yq e '.skip_on_verify_fail' -)
@@ -2940,12 +2940,12 @@ if [ "$ENABLE_INSTALL_WORKER" = "true" ]; then
         prepared_values_file="$INSTALLATION_FILES_PATH/${worker_name}_final_values.yaml"
 
         # Extract and output inline values
-        inline_values=$(yq e ".kubeslice_worker_egs[$worker_index].inline_values | select(. != null)" "$EGS_INPUT_YAML")
+        inline_values=$(yq e ".kubeslice_worker[$worker_index].inline_values | select(. != null)" "$KUBETALLY_INPUT_YAML")
         echo "Inline values extracted for worker $worker_name:"
         echo "$inline_values"
 
         # Extract worker-specific values for the new parameters
-        worker=$(yq e ".kubeslice_worker_egs[$worker_index]" "$EGS_INPUT_YAML")
+        worker=$(yq e ".kubeslice_worker[$worker_index]" "$KUBETALLY_INPUT_YAML")
         worker_name=$(echo "$worker" | yq e '.name' -)
         skip_installation=$(echo "$worker" | yq e '.skip_installation' -)
         use_global_kubeconfig=$(echo "$worker" | yq e '.use_global_kubeconfig' -)
@@ -2982,7 +2982,7 @@ fi
 if [ -n "$CLOUD_INSTALL" ]; then
     echo "🚀 Identifying cloud provider and performing cloud-specific installations..."
     cloud_provider=$(identify_cloud_provider)
-    cloud_install_array=($(load_cloud_install_config "$cloud_provider" "$EGS_INPUT_YAML"))
+    cloud_install_array=($(load_cloud_install_config "$cloud_provider" "$KUBETALLY_INPUT_YAML"))
     if [ ${#cloud_install_array[@]} -gt 0 ]; then
         echo "🔍 Performing cloud-specific installations for provider: $cloud_provider"
         handle_cloud_installation "$cloud_provider" "${cloud_install_array[@]}"
@@ -2996,5 +2996,5 @@ fi
 trap display_summary EXIT
 
 echo "========================================="
-echo "    EGS Installer Script Complete        "
+echo "    KubeTally Installer Script Complete        "
 echo "========================================="
