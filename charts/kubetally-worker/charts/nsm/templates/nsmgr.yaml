@@ -75,11 +75,11 @@ spec:
             valueFrom:
               fieldRef:
                 fieldPath: metadata.name
-          image: "{{ .Values.global.imageRegistry }}/alpine-k8s:1.22.9"
+          image: "{{ .Values.global.imageRegistry }}/alpine-k8s:1.0.1"
           imagePullPolicy: IfNotPresent
           name: nsmgr-init-svc-creator
           command:
-            - /bin/bash
+            - /bin/sh
             - /tmp/create-nsmgr-svc.sh
           volumeMounts:
           - mountPath: /tmp/
@@ -96,7 +96,6 @@ spec:
           name: nsmgr
           ports:
             - containerPort: 5001
-              hostPort: 5001
           env:
             - name: SPIFFE_ENDPOINT_SOCKET
               value: unix:///run/spire/sockets/agent.sock
@@ -132,6 +131,8 @@ spec:
               value: "kernel"
             - name: NSM_DIAL_TIMEOUT
               value: "5000ms"
+            - name: NSM_LOG_LEVEL
+              value: TRACE
           volumeMounts:
             - name: kubelet-socket
               mountPath: /var/lib/kubelet/device-plugins

@@ -8,8 +8,8 @@ global:
   imageRegistry: docker.io/aveshasystems
 
 spireServer:
-  imageRegistry: spiffe-spire-server
-  imageTag: 1.6.1
+  imageRegistry: spire-server
+  imageTag: 1.9.2
 
 # TODO: check and remove unneeded values
 

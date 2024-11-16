@@ -1179,10 +1179,17 @@ data:
                           type: string
                         podName:
                           type: string
+                        remotePort:
+                          description: |-
+                            RemotePort is the port number this gw pod is connected to on the remote cluster.
+                            Applicable only for gw clients. Would be set to 0 for gw servers.
+                          format: int32
+                          type: integer
                         routeRemoved:
                           format: int32
                           type: integer
                         tunnelStatus:
+                          description: TunnelStatus is the status of the tunnel between this gw pod and its peer
                           properties:
                             IntfName:
                               type: string
@@ -1200,8 +1207,12 @@ data:
                               format: int64
                               type: integer
                             Status:
+                              description: 'Status is the status of the tunnel. 0: DOWN, 1: UP'
                               format: int32
                               type: integer
+                            TunnelState:
+                              description: 'TunnelState is the state of the tunnel in string format: UP, DOWN, UNKNOWN'
+                              type: string
                             TxRate:
                               format: int64
                               type: integer
@@ -1553,6 +1564,8 @@ data:
                           enum:
                           - HTTP
                           - HTTPS
+                          - TLS
+                          - TCP
                           maxLength: 255
                           minLength: 1
                           pattern: ^[a-zA-Z0-9]([-a-zSA-Z0-9]*[a-zA-Z0-9])?$|[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*\/[A-Za-z0-9]+$
@@ -1565,7 +1578,6 @@ data:
                       used for the import
                     type: string
                 required:
-                - fqdn
                 - ports
                 - sliceName
                 type: object
@@ -1607,7 +1619,7 @@ spec:
       serviceAccountName: kubeslice-install-crds
       containers:
         - name: kubectl
-          image: '{{ .Values.global.imageRegistry }}/alpine-k8s:1.22.9'
+          image: '{{ .Values.global.imageRegistry }}/alpine-k8s:1.0.1'
           command:
             - /bin/sh
             - -c
@@ -1622,4 +1634,8 @@ spec:
             items:
             - key: "crds.yaml"
               path: "crds.yaml"
+      {{- if .Values.imagePullSecretsName }}
+      imagePullSecrets:
+        - name: {{ .Values.imagePullSecretsName }}
+      {{- end }}
       restartPolicy: OnFailure

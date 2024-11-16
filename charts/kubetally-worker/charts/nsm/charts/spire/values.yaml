@@ -7,10 +7,10 @@ global:
 
 # Variables added
 spireAgent:
-  imageRegistry: spiffe-io-spire-agent
-  imageTag: 1.5.1
+  imageRegistry: spire-agent
+  imageTag: 1.9.2
   waitForItImageRegistry: wait-for-it
-  waitForItImageTag: 1.0.0
+  waitForItImageTag: 1.0.2
 
 # TODO: use these values/remove them
 # TODO: figure how how to make this work outside of spire NS

@@ -19,7 +19,7 @@ continue_on_error() {
 
 # Print introductory statement
 echo "========================================="
-echo "           EGS UnInstaller Script          "
+echo "           Kubetally UnInstaller Script          "
 echo "========================================="
 echo ""
 

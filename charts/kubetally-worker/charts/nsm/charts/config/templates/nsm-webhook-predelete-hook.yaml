@@ -3,7 +3,7 @@ apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: nsm-delete-webhooks
-  namespace: {{ .Values.nsmNs }}
+  namespace: {{ .Release.Namespace }}
   labels:
     app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
     app.kubernetes.io/instance: {{ .Release.Name | quote }}
@@ -34,7 +34,7 @@ roleRef:
 subjects:
   - kind: ServiceAccount
     name: nsm-delete-webhooks
-    namespace: {{ .Values.nsmNs }}
+    namespace: {{ .Release.Namespace }}
 
 ---
 apiVersion: rbac.authorization.k8s.io/v1
@@ -71,7 +71,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: nsm-delete-webhooks
-  namespace: {{ .Values.nsmNs }}
+  namespace: {{ .Release.Namespace }}
   labels:
     app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
     app.kubernetes.io/instance: {{ .Release.Name | quote }}
@@ -83,7 +83,7 @@ metadata:
     "helm.sh/hook-weight": "1"
 data:
   delete-admission-webhook.sh: |-
-    #!/usr/bin/env bash
+    #!/usr/bin/env sh
 
     echo "finding out the admission webhook "
     WH=nsm-mutating-webhook-configuration # MutatingWebhookConfiguration name, ref: admission-webhook.yaml
@@ -95,7 +95,7 @@ apiVersion: batch/v1
 kind: Job
 metadata:
   name: nsm-delete-webhooks
-  namespace:  {{ .Values.nsmNs }}
+  namespace:  {{ .Release.Namespace }}
   annotations:
     "helm.sh/hook": pre-delete,pre-rollback
     "helm.sh/hook-delete-policy": before-hook-creation
@@ -109,16 +109,16 @@ spec:
   template:
     metadata:
       name: nsm-delete-webhooks
-      namespace: {{ .Values.nsmNs }}
+      namespace: {{ .Release.Namespace }}
     spec:
       serviceAccountName: nsm-delete-webhooks
       imagePullSecrets:
       - name: {{ template "imagePullSecrets.secretName" . }}
       containers:
         - name: kubectl
-          image: "{{ .Values.global.imageRegistry }}/alpine-k8s:1.22.9"
+          image: "{{ .Values.global.imageRegistry }}/alpine-k8s:1.0.1"
           command:
-            - /bin/bash
+            - /bin/sh
             - /tmp/delete-admission-webhook.sh
           volumeMounts:
             - mountPath: /tmp

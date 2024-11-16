@@ -86,7 +86,7 @@
           "properties": {
             "type": {
               "type": "string",
-              "enum": ["kubeslice-trial-license", "kubeslice-trial-license-1d", "kubeslice-trial-license-7d", "kubeslice-trial-license-30d", "kubeslice-vcpu-license"]
+              "enum": ["kubeslice-trial-license", "kubeslice-vcpu-license"]
             },
             "mode": {
               "type": "string",
@@ -127,24 +127,22 @@
               "type": "boolean"
             },
             "postgresAddr": {
-              "type": ["string", "null"],
-              "minLength": 1
+              "type": ["string", "null"]
             },
             "postgresPort": {
-              "type": ["integer","null"],
-              "minLength": 1
+              "type": ["integer","null"]
             },
             "postgresUser": {
-              "type": ["string", "null"],
-              "minLength": 1
+              "type": ["string", "null"]
             },
             "postgresPassword": {
-              "type": ["string", "null"],
-              "minLength": 1
+              "type": ["string", "null"]
             },
             "postgresDB": {
-              "type": ["string", "null"],
-              "minLength": 1
+              "type": ["string", "null"]
+            },
+            "postgresSslmode": {
+              "type": ["string", "null"]
             },
             "priceUpdaterWorkers": {
               "type": ["integer"],
@@ -168,24 +166,19 @@
                       "enum": [true]
                     },
                     "postgresAddr": {
-                      "type": "string",
-                      "minLength": 1
+                      "type": "string"
                     },
                     "postgresPort": {
-                      "type": "integer",
-                      "minLength": 1
+                      "type": "integer"
                     },
                     "postgresUser": {
-                      "type": "string",
-                      "minLength": 1
+                      "type": "string"
                     },
                     "postgresPassword": {
-                      "type": "string",
-                      "minLength": 1
+                      "type": "string"
                     },
                     "postgresDB": {
-                      "type": "string",
-                      "minLength": 1
+                      "type": "string"
                     }
                   },
                   "required": ["postgresAddr","postgresPort", "postgresUser", "postgresPassword", "postgresDB"]

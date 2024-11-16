@@ -12,6 +12,3 @@ global:
     username: ''
     password: ''
     email: ''
-
-# nsm admission webhook ns
-nsmNs: kubeslice-nsm-webhook-system
