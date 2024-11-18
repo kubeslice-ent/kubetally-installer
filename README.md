@@ -1,18 +1,16 @@
 ---
-# 🌐 EGS Installer Script
+# 🌐 Kubetally Installer Script
 
 ## 🚀 Overview
 
-The EGS Installer Script is a Bash script designed to streamline the installation, upgrade, and configuration of EGS components in Kubernetes clusters. It leverages Helm for package management, kubectl for interacting with Kubernetes clusters, and yq for parsing YAML files. The script allows for automated validation of cluster access, installation of required binaries, and the creation of Kubernetes namespaces and resources.
+The Kubetally Installer Script is a Bash script designed to streamline the installation, upgrade, and configuration of Kubetally components in Kubernetes clusters. It leverages Helm for package management, kubectl for interacting with Kubernetes clusters, and yq for parsing YAML files. The script allows for automated validation of cluster access, installation of required binaries, and the creation of Kubernetes namespaces and resources.
 
 ---
 
-## 📄 EGS Documents
+## 📄 Kubetally Documents
 
-- 📖 For EGS platform overview, please see the [Platform Overview Documentation](https://docs.avesha.io/) 🌐
-- 🔧 For the Admin guide, please see the [Admin Guide Documentation](https://docs.avesha.io/) 🛠️
-- 👤 For the User guide, please see the [User Guide Documentation](https://docs.avesha.io/) 📚
-- 🛠️ For the Installation guide, please see the documentation on [GitHub Repo](https://github.com/kubeslice-ent/egs-installation) 💻
+- 📖 For Kubetally platform overview, please see the [Platform Overview Documentation](https://docs.avesha.io/) 🌐
+- 🛠️ For the Installation guide, please see the documentation on [GitHub Repo](https://github.com/kubeslice-ent/kubetally-installation) 💻
 
 
 ## Getting Started
@@ -39,13 +37,13 @@ Before you begin, ensure the following steps are completed:
 ### 🛠️ Installation Steps
 
 1. **📂 Clone the Repository:**
-   - Start by cloning the EGS installation Git repository:
+   - Start by cloning the Kubetally installation Git repository:
      ```bash
-     git clone https://github.com/kubeslice-ent/egs-installation
+     git clone https://github.com/kubeslice-ent/kubetally-installer
      ```
 
 2. **📝 Modify the Configuration File:**
-   - Navigate to the cloned repository and locate the input configuration YAML file `egs-installer-config.yaml`.
+   - Navigate to the cloned repository and locate the input configuration YAML file `kubetally-installer-config.yaml`.
    - Update the following mandatory parameters:
      - **🔑 Image Pull Secrets:**
        - Insert the image pull secrets received via email as part of the registration process:
@@ -65,23 +63,20 @@ Before you begin, ensure the following steps are completed:
 3. **🚀 Run the Installation Script:**
    - Execute the installation script using the following command:
      ```bash
-     ./egs-installer.sh --input-yaml egs-installer-config.yaml
+     ./kubetally-installer.sh --input-yaml kubetally-installer-config.yaml
      ```
 
 4. **🔄 Update the Inline Values:**
-   - Update the inline-values of `kubeslice-worker-egs` in `egs-installer-config.yaml` with the Grafana LB External IP:
+   - Update the inline-values of `kubeslice-worker` in `kubetally-installer-config.yaml` with the Grafana LB External IP:
      - Fetch the external IP using the following command:
        ```bash
        kubectl get svc prometheus-grafana -n monitoring
        ```
-     - Update the `kubeslice-worker-egs` configuration with the Grafana LB external IP in `egs-installer-config.yaml`:
+     - Update the `kubeslice-worker` configuration with the Grafana LB external IP in `kubetally-installer-config.yaml`:
        ```yaml
        inline_values:  # Inline Helm values for the worker chart
          kubesliceNetworking:
            enabled: false  # Disable Kubeslice networking for this worker
-         egs:
-           prometheusEndpoint: "http://prometheus-kube-prometheus-prometheus.monitoring.svc.cluster.local:9090"  # Prometheus endpoint
-           grafanaDashboardBaseUrl: "http://<grafana-lb>/d/Oxed_c6Wz"
          metrics:
            insecure: true  # Allow insecure connections for metrics
        ```
@@ -89,7 +84,7 @@ Before you begin, ensure the following steps are completed:
 5. **🔄 Run the Installation Script Again:**
    - Apply the updated configuration by running the installation script again:
      ```bash
-     ./egs-installer.sh --input-yaml egs-installer-config.yaml
+     ./kubetally-installer.sh --input-yaml kubetally-installer-config.yaml
      ```
 
 ---
@@ -99,16 +94,16 @@ Before you begin, ensure the following steps are completed:
   **Run the Cleanup Script**
    - Execute the uninstallation script using the following command:
      ```bash
-     ./egs-uninstall.sh --input-yaml egs-installer-config.yaml
+     ./kubetally-uninstall.sh --input-yaml kubetally-installer-config.yaml
      ```
 ---
 
 ## 🛠️ Configuration details
 
-The script requires a YAML configuration file to define various parameters and settings for the installation process. Below is an example configuration file (`egs-installer-config.yaml`) with descriptions for each section.
+The script requires a YAML configuration file to define various parameters and settings for the installation process. Below is an example configuration file (`kubetally-installer-config.yaml`) with descriptions for each section.
 
 ## ⚠️ Warning
-**Do not copy the YAML configuration directly from this README.** Hash characters (`#`) used for comments may not be interpreted correctly. Always refer to the actual `egs-installer-config.yaml` file available in the repository for accurate configuration.
+**Do not copy the YAML configuration directly from this README.** Hash characters (`#`) used for comments may not be interpreted correctly. Always refer to the actual `kubetally-installer-config.yaml` file available in the repository for accurate configuration.
 
 ## YAML Configuration File
 
@@ -150,8 +145,8 @@ global_image_pull_secret:
 add_node_label: true  # Enable node labeling during installation
 
 # Kubeconfig settings
-global_kubeconfig: ""  # Path to the global kubeconfig file (used if no specific kubeconfig is provided)
-global_kubecontext: ""  # Global kubecontext to use; if empty, the default context will be used
+global_kubeconfig: ""  # Relative Path to the global kubeconfig file must be in script directory (used if no specific kubeconfig is provided) - Mandatory
+global_kubecontext: ""  # Global kubecontext to use - Mandatory
 use_global_context: true  # If true, use the global kubecontext for all operations by default
 
 # Enable or disable specific stages of the installation
@@ -161,34 +156,65 @@ enable_install_ui: true  # Enable the installation of the Kubeslice UI
 enable_install_worker: true  # Enable the installation of Kubeslice workers
 
 # Kubeslice controller installation settings
-kubeslice_controller_egs:
+kubeslice_controller:
   skip_installation: false  # Do not skip the installation of the controller
   use_global_kubeconfig: true  # Use global kubeconfig for the controller installation
   specific_use_local_charts: true  # Override to use local charts for the controller
   kubeconfig: ""  # Path to the kubeconfig file specific to the controller
   kubecontext: ""  # Kubecontext specific to the controller; if empty, uses the global context
   namespace: "kubeslice-controller"  # Kubernetes namespace where the controller will be installed
-  release: "kubeslice-controller-release"  # Helm release name for the controller
-  chart: "kubeslice-controller-egs"  # Helm chart name for the controller
+  release: "kubetally-controller-release"  # Helm release name for the controller
+  chart: "kubetally-controller"  # Helm chart name for the controller
   inline_values:  # Inline Helm values for the controller chart
+    global:
+      imageRegistry: docker.io/aveshasystems
+      kubeTally:
+        # Enable or disable KubeTally
+        enabled: true
+        postgresSecretName: kubetally-db-credentials   # Default value, secret name can be overridden
+        # Ensure to configure the mandatory PostgreSQL database settings when 'kubetally enable' is true.
+        postgresAddr: ""                         # Optional, can be specified here or retrieved from the secret
+        postgresPort:                            # Optional, can be specified here or retrieved from the secret
+        postgresUser: ""                         # Optional, can be specified here or retrieved from the secret
+        postgresPassword: ""                     # Optional, can be specified here or retrieved from the secret
+        postgresDB: ""                           # Optional, can be specified here or retrieved from the secret
+        postgresSslmode: require
     kubeslice:
       controller: 
         endpoint: ""  # Endpoint of the controller API server; auto-fetched if left empty
         migration:
           minio:
             install: "false"  # Do not install MinIO during migration
+    prometheus:
+      server:
+        persistentVolume:       # Enable/disable Persistent Volume Claim for Prometheus data
+          enabled: true         # Enable/disable Persistent Volume Claim for Prometheus data
+          size: 5Gi             # Size of the PVC
+      retention: "30d"          # Retention period for Prometheus data
   helm_flags: "--timeout 10m --atomic"  # Additional Helm flags for the installation
   verify_install: true  # Verify the installation of the controller
   verify_install_timeout: 30  # Timeout for the controller installation verification (in seconds)
   skip_on_verify_fail: false  # If verification fails, do not skip the step
 
 # Kubeslice UI installation settings
-kubeslice_ui_egs:
+kubeslice_ui:
   skip_installation: false  # Do not skip the installation of the UI
   use_global_kubeconfig: true  # Use global kubeconfig for the UI installation
   namespace: "kubeslice-controller"  # Kubernetes namespace where the UI will be installed
-  release: "kubeslice-ui"  # Helm release name for the UI
-  chart: "kubeslice-ui-egs"  # Helm chart name for the UI
+  release: "kubetally-ui"  # Helm release name for the UI
+  chart: "kubetally-ui"  # Helm chart name for the UI
+  inline_values:  # Inline Helm values for the UI chart
+    global:
+      imageRegistry: docker.io/aveshasystems
+    kubeTally:
+      enabled: true
+    kubeslice:
+      productName: kubetally
+      dashboard:
+        enabled: false     # Enable or disable kubernetes-dashboard, bydefault false
+      uiproxy:
+        service:
+          type: LoadBalancer
   helm_flags: "--atomic"  # Additional Helm flags for the UI installation
   verify_install: true  # Verify the installation of the UI
   verify_install_timeout: 50  # Timeout for the UI installation verification (in seconds)
@@ -196,23 +222,19 @@ kubeslice_ui_egs:
   specific_use_local_charts: true  # Override to use local charts for the UI
 
 # Kubeslice worker installation settings
-kubeslice_worker_egs:
+kubeslice_worker:
   - name: "worker-1"
     use_global_kubeconfig: true  # Use global kubeconfig for this worker
     skip_installation: false  # Do not skip the installation of the worker
     specific_use_local_charts: true  # Override to use local charts for this worker
     namespace: "kubeslice-system"  # Kubernetes namespace for this worker
-    release: "kubeslice-worker1-release"  # Helm release name for the worker
-    chart: "kubeslice-worker-egs"  # Helm chart name for the worker
+    release: "kubetally-worker1-release"  # Helm release name for the worker
+    chart: "kubetally-worker"  # Helm chart name for the worker
     inline_values:  # Inline Helm values for the worker chart
-      cluster:
-        name: worker-1
-        endpoint: <worker-cluster-endpoint> # Cluster Endpoint Accessible from Controller Cluster
+      global:
+        imageRegistry: docker.io/aveshasystems
       kubesliceNetworking:
         enabled: false  # Disable Kubeslice networking for this worker
-      egs:
-        prometheusEndpoint: "http://prometheus-kube-prometheus-prometheus.monitoring.svc.cluster.local:9090"  # Prometheus endpoint
-        grafanaDashboardBaseUrl: "http://grafana-test"  # Grafana dashboard base URL
       metrics:
         insecure: true  # Allow insecure connections for metrics
     helm_flags: "--atomic"  # Additional Helm flags for the worker installation
@@ -246,30 +268,6 @@ enable_install_additional_apps: true  # Set to true to enable additional apps in
 
 # Define additional applications to install
 additional_apps:
-  - name: "gpu-operator"
-    skip_installation: false  # Do not skip the installation of the GPU operator
-    use_global_kubeconfig: true  # Use global kubeconfig for this application
-    namespace: "gpu-operator"  # Namespace where the GPU operator will be installed
-    release: "gpu-operator-release"  # Helm release name for the GPU operator
-    chart: "gpu-operator"  # Helm chart name for the GPU operator
-    repo_url: "https://helm.ngc.nvidia.com/nvidia"  # Helm repository URL for the GPU operator
-    version: "v24.6.0"  # Version of the GPU operator to install
-    specific_use_local_charts: true  # Use local charts for this application
-    inline_values:  # Inline Helm values for the GPU operator chart
-      hostPaths:
-        driverInstallDir: "/home/kubernetes/bin/nvidia"
-      toolkit:
-        installDir: "/home/kubernetes/bin/nvidia"
-      cdi:
-        enabled: true
-        default: true
-      driver:
-        enabled: false
-    helm_flags: "--wait"  # Additional Helm flags for this application's installation
-    verify_install: true  # Verify the installation of the GPU operator
-    verify_install_timeout: 600  # Timeout for verification (in seconds)
-    skip_on_verify_fail: false  # Do not skip if verification fails
-
   - name: "prometheus"
     skip_installation: false  # Do not skip the installation of Prometheus
     use_global_kubeconfig: true  # Use global kubeconfig for Prometheus
@@ -283,36 +281,7 @@ additional_apps:
     inline_values:  # Inline Helm values for Prometheus
       prometheus:
         service:
-          type: LoadBalancer
-          port: 32270
-        prometheusSpec:
-          additionalScrapeConfigs:
-          - job_name: tgi
-            kubernetes_sd_configs:
-            - role: endpoints
-            relabel_configs:
-            - source_labels: [__meta_kubernetes_pod_name]
-              target_label: pod_name
-            - source_labels: [__meta_kubernetes_pod_container_name]
-              target_label: container_name
-            static_configs:
-              - targets: ["llm-inference.demo.svc.cluster.local:80"]
-          - job_name: gpu-metrics
-            scrape_interval: 1s
-            metrics_path: /metrics
-            scheme: http
-            kubernetes_sd_configs:
-            - role: endpoints
-              namespaces:
-                names:
-                - gpu-operator
-            relabel_configs:
-            - source_labels: [__meta_kubernetes_endpoints_name]
-              action: drop
-              regex: .*-node-feature-discovery-master
-            - source_labels: [__meta_kubernetes_pod_node_name]
-              action: replace
-              target_label: kubernetes_node
+          type: ClusterIP
       grafana:
         enabled: true
         grafana.ini:
@@ -332,65 +301,6 @@ additional_apps:
     verify_install_timeout: 600  # Timeout for verification (in seconds)
     skip_on_verify_fail: false  # Do not skip if verification fails
 
-# Enable custom applications
-enable_custom_apps: true  # Set to true to enable custom apps
-
-# Define custom applications and their associated manifests
-manifests:
-  - appname: gpu-operator-quota
-    manifest: ""  # URL or path to the manifest file; if empty, inline YAML is used
-    overrides_yaml: ""  # Path to an external YAML file with overrides, if any
-    inline_yaml: |  # Inline YAML content for this custom application
-      apiVersion: v1
-      kind: ResourceQuota
-      metadata:
-        name: gpu-operator-quota
-      spec:
-        hard:
-          pods: 100
-        scopeSelector:
-          matchExpressions:
-          - operator: In
-            scopeName: PriorityClass
-            values:
-              - system-node-critical
-              - system-cluster-critical
-    use_global_kubeconfig: true  # Use global kubeconfig for this application
-    skip_installation: false  # Do not skip the installation of this application
-    verify_install: true  # Verify the installation of this application
-    verify_install_timeout: 30  # Timeout for verification (in seconds)
-    skip_on_verify_fail: false  # Do not skip if verification fails
-    namespace: gpu-operator  # Namespace for this application
-    kubeconfig: ""  # Path to the kubeconfig file specific to this application
-    kubecontext: ""  # Kubecontext specific to this application; uses global context if empty
-
-  - appname: nvidia-driver-installer
-    manifest: https://raw.githubusercontent.com/GoogleCloudPlatform/container-engine-accelerators/master/nvidia-driver-installer/cos/daemonset-preloaded.yaml
-    overrides_yaml: ""  # Path to an external YAML file with overrides, if any
-    inline_yaml: null  # Inline YAML content for this application
-    use_global_kubeconfig: true  # Use global kubeconfig for this application
-    skip_installation: false  # Do not skip the installation of this application
-    verify_install: true  # Verify the installation of this application
-    verify_install_timeout: 200  # Timeout for verification (in seconds)
-    skip_on_verify_fail: true  # Skip if verification fails
-    namespace: kube-system  # Namespace for this application
-    
-# Command execution settings
-run_commands: true  # Enable the execution of commands defined in the YAML
-
-# Define commands to execute
-commands:
-  - use_global_kubeconfig: true  # Use global kubeconfig for these commands
-    skip_installation: false  # Do not skip the execution of these commands
-    verify_install: true  # Verify the execution of these commands
-    verify_install_timeout: 200  # Timeout for verification (in seconds)
-    skip_on_verify_fail: true  # Skip if command verification fails
-    namespace: kube-system  # Namespace context for these commands
-    command_stream: |  # Commands to execute
-      kubectl get nodes
-      kubectl get nodes -o json | jq -r '.items[] | select(.status.capacity["nvidia.com/gpu"] != null) | .metadata.name' | xargs -I {} kubectl label nodes {} gke-no-default-nvidia-gpu-device-plugin=true --overwrite
-
-
 ```
 
 
@@ -405,7 +315,7 @@ commands:
 | `verify_install`                    | Enable installation verification globally, ensuring that all installed components are running as expected.        | `true`                                                                                              |
 | `verify_install_timeout`            | Global timeout for verification in seconds. Determines how long the script waits for all components to be verified as running. | `600` (10 minutes)                                                                                  |
 | `skip_on_verify_fail`               | Decide whether to skip further steps or exit the script if verification fails globally.                            | `false`                                                                                             |
-| `global_helm_repo_url`              | URL of the global Helm repository from which charts will be pulled.                                               | <small>[Helm Repository](https://smartscaler.nexus.aveshalabs.io/repository/kubeslice-egs-helm-ent-prod)</small>                     |
+| `global_helm_repo_url`              | URL of the global Helm repository from which charts will be pulled.                                               | <small>[Helm Repository](https://kubeslice.aveshalabs.io/repository/kubetally-helm-ent-prod/)</small>                     |
 | `global_helm_username`              | Username for accessing the global Helm repository, if required.                                                   | `""`                                                                                                |
 | `global_helm_password`              | Password for accessing the global Helm repository, if required.                                                   | `""`                                                                                                |
 | `readd_helm_repos`                  | Re-add Helm repositories if they already exist to ensure the latest repository configuration is used.             | `true`                                                                                              |
@@ -422,7 +332,7 @@ commands:
 | `enable_install_ui`                 | Enable the installation of the Kubeslice UI.                                                                       | `true`                                                                                              |
 | `enable_install_worker`             | Enable the installation of the Kubeslice worker.                                                                   | `true`                                                                                              |
 
-#### `kubeslice_controller_egs` Subfields
+#### `kubeslice_controller` Subfields
 
 | **Subfield**                  | **Description**                                                                                         | **Default/Example**                                                             |
 |-------------------------------|---------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------|
@@ -433,14 +343,14 @@ commands:
 | `kubecontext`                 | Specific kubecontext for the controller installation, uses the global context if empty.                  | `""` (empty string)                                                             |
 | `namespace`                   | Kubernetes namespace where the Kubeslice controller will be installed.                                   | `"kubeslice-controller"`                                                        |
 | `release`                     | Helm release name for the Kubeslice controller.                                                          | `"kubeslice-controller-release"`                                                |
-| `chart`                       | Helm chart name used for installing the Kubeslice controller.                                            | `"kubeslice-controller-egs"`                                                    |
+| `chart`                       | Helm chart name used for installing the Kubeslice controller.                                            | `"kubeslice-controller"`                                                    |
 | `inline_values`               | Inline values passed to the Helm chart during installation. For example, setting the controller endpoint. | `kubeslice.controller.endpoint: ""`                                             |
 | `helm_flags`                  | Additional Helm flags for the controller installation, such as timeout and atomic deployment.            | `"--timeout 10m --atomic"`                                                      |
 | `verify_install`              | Verify the installation of the Kubeslice controller after deployment.                                    | `true`                                                                          |
 | `verify_install_timeout`      | Timeout for verifying the installation of the controller, in seconds.                                    | `30` (30 seconds)                                                               |
 | `skip_on_verify_fail`         | Skip further steps or exit if the controller verification fails.                                         | `false`                                                                         |
 
-#### `kubeslice_ui_egs` Subfields
+#### `kubeslice_ui` Subfields
 
 | **Subfield**                | **Description**                                                                                           | **Default/Example**                                           |
 |-----------------------------|-----------------------------------------------------------------------------------------------------------|---------------------------------------------------------------|
@@ -449,13 +359,13 @@ commands:
 | `specific_use_local_charts` | Use local charts specifically for the UI installation, overriding the global `use_local_charts` setting.  | `true`                                                        |
 | `namespace`                 | Kubernetes namespace where the Kubeslice UI will be installed.                                            | `"kubeslice-controller"`                                      |
 | `release`                   | Helm release name for the Kubeslice UI.                                                                   | `"kubeslice-ui"`                                              |
-| `chart`                     | Helm chart name used for installing the Kubeslice UI.                                                     | `"kubeslice-ui-egs"`                                          |
+| `chart`                     | Helm chart name used for installing the Kubeslice UI.                                                     | `"kubeslice-ui"`                                          |
 | `helm_flags`                | Additional Helm flags for the UI installation, such as atomic deployment.                                 | `"--atomic"`                                                  |
 | `verify_install`            | Verify the installation of the Kubeslice UI after deployment.                                             | `true`                                                        |
 | `verify_install_timeout`    | Timeout for verifying the installation of the UI, in seconds.                                             | `50` (50 seconds)                                             |
 | `skip_on_verify_fail`       | Skip further steps or exit if the UI verification fails.                                                  | `false`                                                       |
 
-#### `kubeslice_worker_egs` Subfields
+#### `kubeslice_worker` Subfields
 
 | **Subfield**                | **Description**                                                                                         | **Default/Example**                                                                                         |
 |-----------------------------|---------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------|
@@ -465,8 +375,8 @@ commands:
 | `specific_use_local_charts` | Use local charts specifically for the worker installation, overriding the global `use_local_charts` setting. | `true`                                                                                                      |
 | `namespace`                 | Kubernetes namespace where the worker will be installed.                                                | `"kubeslice-system"`                                                                                        |
 | `release`                   | Helm release name for the worker.                                                                       | `"kubeslice-worker1-release"`                                                                               |
-| `chart`                     | Helm chart name used for installing the worker.                                                         | `"kubeslice-worker-egs"`                                                                                    |
-| `inline_values`             | Inline values passed to the Helm chart during installation. For example, disabling networking and setting Prometheus endpoints. | `kubesliceNetworking.enabled: false`, `egs.prometheusEndpoint: "http://prometheus-test"`, `egs.grafanaDashboardBaseUrl: "http://grafana-test"`, `metrics.insecure: true` |
+| `chart`                     | Helm chart name used for installing the worker.                                                         | `"kubeslice-worker"`                                                                                    |
+| `inline_values`             | Inline values passed to the Helm chart during installation. For example, disabling networking and setting Prometheus endpoints. | `kubesliceNetworking.enabled: false`, `metrics.insecure: true` |
 | `helm_flags`                | Additional Helm flags for the worker installation, such as atomic deployment.                           | `"--atomic"`                                                                                                |
 | `verify_install`            | Verify the installation of the worker after deployment.                                                 | `true`                                                                                                      |
 | `verify_install_timeout`    | Timeout for verifying the installation of the worker, in seconds.                                       | `60` (60 seconds)                                                                                           |
@@ -495,14 +405,14 @@ commands:
 To run the script, use the following command:
 ```
 ```bash
-./egs-installer.sh --input-yaml <yaml_file>
+./kubtally-installer.sh --input-yaml <yaml_file>
 ```
 
 
 Replace `<yaml_file>` with the path to your YAML configuration file. For example:
 
 ```bash
-./egs-installer.sh --input-yaml egs-installer-config.yaml
+./kubtally-installer.sh --input-yaml kubtally-installer-config.yaml
 ```
 
 ### 💡 Command-Line Options
@@ -513,15 +423,8 @@ Replace `<yaml_file>` with the path to your YAML configuration file. For example
 
 ---
 
-## 🔑 slice & admin Token Retrieval Script - `fetch_egs_slice_token.sh`
-
-`fetch_egs_slice_token.sh` is a Bash script designed to retrieve tokens for Kubernetes slices and admin users within a specified project/namespace. This script can fetch read-only, read-write, and admin tokens based on the provided arguments, making it flexible for various Kubernetes authentication requirements.
 
 ## 📋 Usage
-
-```bash
-./fetch_egs_slice_token.sh -k <kubeconfig_absolute_path> [-s <slice_name>] -p <project_name> [-a] -u <username1,username2,...>
-```
 
 ## 🔹 Parameters
 
@@ -534,13 +437,6 @@ Replace `<yaml_file>` with the path to your YAML configuration file. For example
 
 ## 🚀 Examples
 
-### 1️⃣ Fetching Slice Tokens Only
-
-Retrieve read-only and read-write tokens for a specified slice:
-
-```bash
-./fetch_egs_slice_token.sh -k /path/to/kubeconfig -s pool1 -p avesha
-```
 
 - **Explanation**: This command fetches tokens for the slice `pool1` in the namespace `kubeslice-avesha`.
 - **Parameters**:
@@ -550,49 +446,7 @@ Retrieve read-only and read-write tokens for a specified slice:
 
 ---
 
-### 2️⃣ Fetching Admin Tokens Only 
 
-Fetch admin tokens for specific users. When the `-a` flag is used, `--slice` becomes optional.
-
-```bash
-./fetch_egs_slice_token.sh -k /path/to/kubeconfig -p avesha -a -u admin,dev
-```
-
-- **Explanation**: This command fetches admin tokens for both `admin` and `dev` users in the namespace `kubeslice-avesha`.
-- **Parameters**:
-  - `-k /path/to/kubeconfig`: Specifies the path to the kubeconfig file.
-  - `-p avesha`: Specifies the project/namespace name (`avesha`).
-  - `-a`: Indicates that we are fetching admin tokens.
-  - `-u admin,dev`: Specifies a comma-separated list of usernames (`admin` and `dev`).
-
----
-
-### 3️⃣ Fetching Both Slice and Admin Tokens
-
-Retrieve both slice tokens and admin tokens in a single command:
-
-```bash
-./fetch_egs_slice_token.sh -k /path/to/kubeconfig -s pool1 -p avesha -a -u admin,dev
-```
-
-- **Explanation**: This command retrieves both read-only and read-write tokens for slice `pool1` and admin tokens for `admin` and `dev` in the namespace `kubeslice-avesha`.
-- **Parameters**:
-  - `-k /path/to/kubeconfig`: Specifies the path to the kubeconfig file.
-  - `-s pool1`: Specifies the slice name (`pool1`).
-  - `-p avesha`: Specifies the project/namespace name (`avesha`).
-  - `-a`: Indicates that we are fetching admin tokens.
-  - `-u admin,dev`: Specifies a comma-separated list of usernames (`admin` and `dev`).
-
----
-
-### 🛠️ Help
-
-For more details on usage or troubleshooting, you can refer to the help option:
-
-```bash
-./fetch_egs_slice_token.sh --help
-```
----
 
 
 ### 🔑 Key Features
