@@ -174,32 +174,22 @@ get_lb_external_ip() {
 get_node_external_ip() {
     local kubeconfig="$1"
     local kubecontext="$2"
-    local namespace="$3"
-    local service_name="$4"
-
     # Print the input values (redirected to stderr)
-    echo "🔧 get_lb_external_ip:" >&2
+    echo "🔧 get_node_external_ip:" >&2
     echo "  🗂️  Kubeconfig: $kubeconfig" >&2
     echo "  🌐 Kubecontext: $kubecontext" >&2
-    echo "  📦 Namespace: $namespace" >&2
-    echo "  🛠️  Service: $service_name" >&2
 
-    service_type=$(kubectl --kubeconfig "$kubeconfig" --context "$kubecontext" get svc -n "$namespace" "$service_name" -o jsonpath='{.spec.type}')
+    # Retrieve only the first ExternalIP
+    external_ip=$(kubectl --kubeconfig "$kubeconfig" --context "$kubecontext" get nodes -o jsonpath='{.items[0].status.addresses[?(@.type=="ExternalIP")].address}' | awk '{print $1}')
 
-    if [ "$service_type" = "LoadBalancer" ]; then
-        ip=$(kubectl --kubeconfig "$kubeconfig" --context "$kubecontext" get svc -n "$namespace" "$service_name" -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
-        echo "$ip"
-    elif [ "$service_type" = "NodePort" ]; then
-        node_ip=$(kubectl --kubeconfig "$kubeconfig" --context "$kubecontext" get nodes -o jsonpath='{.items[0].status.addresses[?(@.type=="InternalIP")].address}')
-        echo "$node_ip"
-    elif [ "$service_type" = "ClusterIP" ]; then
-        cluster_ip=$(kubectl --kubeconfig "$kubeconfig" --context "$kubecontext" get svc -n "$namespace" "$service_name" -o jsonpath='{.spec.clusterIP}')
-        echo "$cluster_ip"
+    if [ -n "$external_ip" ]; then
+        echo "$external_ip"
     else
-        echo "Unknown service type: $service_type"
+        echo "No external IP found for any node." >&2
         return 1
     fi
 }
+
 
 kubeaccess_precheck() {
     local component_name="$1"
