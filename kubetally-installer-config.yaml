@@ -147,7 +147,7 @@ cluster_registration:
     project_name: "avesha"
     telemetry:
       enabled: true  # Enable telemetry for this cluster
-      endpoint: "http://prometheus-kube-prometheus-prometheus.monitoring.svc.cluster.local:9090"  # Telemetry endpoint
+      endpoint: "http://prometheus-kube-prometheus-prometheus.monitoring.svc.cluster.local:32700"  # Telemetry endpoint
       telemetryProvider: "prometheus"  # Telemetry provider (Prometheus in this case)
     geoLocation:
       cloudProvider: "GCP"  # Cloud provider for this cluster (e.g., GCP)
@@ -171,7 +171,7 @@ additional_apps:
     inline_values:  # Inline Helm values for Prometheus
       prometheus:
         service:
-          type: ClusterIP
+          type: NodePort
       grafana:
         enabled: true
         grafana.ini:
