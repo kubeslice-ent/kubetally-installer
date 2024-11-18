@@ -1955,7 +1955,7 @@ prometheusOperator:
   ## Port to expose on each node
   ## Only used if service.type is 'NodePort'
   ##
-    nodePort: 30080
+    nodePort: 32700
 
     nodePortTls: 30443
 
