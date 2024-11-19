@@ -2423,6 +2423,14 @@ register_clusters_in_controller() {
     echo "  namespace=$namespace"
     echo "-----------------------------------------"
 
+    node_ip=""
+    while [ -z "${node_ip}" ] ; do 
+        node_ip="$(get_node_external_ip "${kubeconfigname}" "${kubecontextname}")"
+        sleep 10 
+    done
+    
+    echo "Telemetry endpoint url : http://${node_ip}:32700"
+    
     for registration in "${KUBESLICE_CLUSTER_REGISTRATIONS[@]}"; do
         IFS="|" read -r cluster_name project_name telemetry_enabled telemetry_endpoint telemetry_provider geo_location_provider geo_location_region <<<"$registration"
 
@@ -2440,7 +2448,7 @@ spec:
   clusterProperty:
     telemetry:
       enabled: $telemetry_enabled
-      endpoint: $telemetry_endpoint
+      endpoint: "http://${node_ip}:32700"
       telemetryProvider: $telemetry_provider
     geoLocation:
       cloudProvider: "$geo_location_provider"
