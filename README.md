@@ -61,12 +61,18 @@ Before you begin, ensure the following steps are completed:
          ```
      - **🐘 PostgreSQL Configuration:**
        - Set the global `kubeconfig` and `kubecontext` parameters:
-         ```yaml
-        postgresAddr: ""                         # Optional, can be specified here or retrieved from the secret
-        postgresPort:                            # Optional, can be specified here or retrieved from the secret
-        postgresUser: ""                         # Optional, can be specified here or retrieved from the secret
-        postgresPassword: ""                     # Optional, can be specified here or retrieved from the secret
-        postgresDB: ""                           # Optional, can be specified here or retrieved from the secret
+         ``` yaml
+          global:
+            kubeTally:
+              # Enable or disable KubeTally
+              enabled: true
+              postgresSecretName: kubetally-db-credentials   # Default value, secret name can be overridden
+              # Ensure to configure the mandatory PostgreSQL database settings when 'kubetally enable' is true.
+              postgresAddr: ""                         # Optional, can be specified here or retrieved from the secret
+              postgresPort:                            # Optional, can be specified here or retrieved from the secret
+              postgresUser: ""                         # Optional, can be specified here or retrieved from the secret
+              postgresPassword: ""                     # Optional, can be specified here or retrieved from the secret
+              postgresDB: ""                           # Optional, can be specified here or retrieved from the secret
          ```
 
 3. **🚀 Run the Installation Script:**
