@@ -53,7 +53,7 @@ kubeslice_controller:
   kubeconfig: ""  # Path to the kubeconfig file specific to the controller
   kubecontext: ""  # Kubecontext specific to the controller; if empty, uses the global context
   namespace: "kubeslice-controller"  # Kubernetes namespace where the controller will be installed
-  release: "kubetally-controller-release"  # Helm release name for the controller
+  release: "kubetally-controller"  # Helm release name for the controller
   chart: "kubetally-controller"  # Helm chart name for the controller
   inline_values:  # Inline Helm values for the controller chart
     global:
@@ -118,7 +118,7 @@ kubeslice_worker:
     skip_installation: false  # Do not skip the installation of the worker
     specific_use_local_charts: true  # Override to use local charts for this worker
     namespace: "kubeslice-system"  # Kubernetes namespace for this worker
-    release: "kubetally-worker1-release"  # Helm release name for the worker
+    release: "kubetally-worker1"  # Helm release name for the worker
     chart: "kubetally-worker"  # Helm chart name for the worker
     inline_values:  # Inline Helm values for the worker chart
       global:

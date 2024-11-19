@@ -10,7 +10,7 @@ The Kubetally Installer Script is a Bash script designed to streamline the insta
 ## 📄 Kubetally Documents
 
 - 📖 For Kubetally platform overview, please see the [Platform Overview Documentation](https://docs.avesha.io/) 🌐
-- 🛠️ For the Installation guide, please see the documentation on [GitHub Repo](https://github.com/kubeslice-ent/kubetally-installation) 💻
+- 🛠️ For the Installation guide, please see the documentation on [GitHub Repo](https://github.com/kubeslice-ent/kubetally-installer) 💻
 
 
 ## Getting Started
@@ -59,30 +59,18 @@ Before you begin, ensure the following steps are completed:
          global_kubeconfig: ""  # Relative path to global kubeconfig file from base_path default is script directory (MANDATORY)
          global_kubecontext: ""  # Global kubecontext (MANDATORY)
          ```
+     - **🐘 PostgreSQL Configuration:**
+       - Set the global `kubeconfig` and `kubecontext` parameters:
+         ```yaml
+        postgresAddr: ""                         # Optional, can be specified here or retrieved from the secret
+        postgresPort:                            # Optional, can be specified here or retrieved from the secret
+        postgresUser: ""                         # Optional, can be specified here or retrieved from the secret
+        postgresPassword: ""                     # Optional, can be specified here or retrieved from the secret
+        postgresDB: ""                           # Optional, can be specified here or retrieved from the secret
+         ```
 
 3. **🚀 Run the Installation Script:**
    - Execute the installation script using the following command:
-     ```bash
-     ./kubetally-installer.sh --input-yaml kubetally-installer-config.yaml
-     ```
-
-4. **🔄 Update the Inline Values:**
-   - Update the inline-values of `kubeslice-worker` in `kubetally-installer-config.yaml` with the Grafana LB External IP:
-     - Fetch the external IP using the following command:
-       ```bash
-       kubectl get svc prometheus-grafana -n monitoring
-       ```
-     - Update the `kubeslice-worker` configuration with the Grafana LB external IP in `kubetally-installer-config.yaml`:
-       ```yaml
-       inline_values:  # Inline Helm values for the worker chart
-         kubesliceNetworking:
-           enabled: false  # Disable Kubeslice networking for this worker
-         metrics:
-           insecure: true  # Allow insecure connections for metrics
-       ```
-
-5. **🔄 Run the Installation Script Again:**
-   - Apply the updated configuration by running the installation script again:
      ```bash
      ./kubetally-installer.sh --input-yaml kubetally-installer-config.yaml
      ```
@@ -163,7 +151,7 @@ kubeslice_controller:
   kubeconfig: ""  # Path to the kubeconfig file specific to the controller
   kubecontext: ""  # Kubecontext specific to the controller; if empty, uses the global context
   namespace: "kubeslice-controller"  # Kubernetes namespace where the controller will be installed
-  release: "kubetally-controller-release"  # Helm release name for the controller
+  release: "kubetally-controller"  # Helm release name for the controller
   chart: "kubetally-controller"  # Helm chart name for the controller
   inline_values:  # Inline Helm values for the controller chart
     global:
@@ -228,7 +216,7 @@ kubeslice_worker:
     skip_installation: false  # Do not skip the installation of the worker
     specific_use_local_charts: true  # Override to use local charts for this worker
     namespace: "kubeslice-system"  # Kubernetes namespace for this worker
-    release: "kubetally-worker1-release"  # Helm release name for the worker
+    release: "kubetally-worker1"  # Helm release name for the worker
     chart: "kubetally-worker"  # Helm chart name for the worker
     inline_values:  # Inline Helm values for the worker chart
       global:
@@ -257,7 +245,7 @@ cluster_registration:
     project_name: "avesha"
     telemetry:
       enabled: true  # Enable telemetry for this cluster
-      endpoint: "http://prometheus-kube-prometheus-prometheus.monitoring.svc.cluster.local:9090"  # Telemetry endpoint
+      endpoint: "http://prometheus-kube-prometheus-prometheus.monitoring.svc.cluster.local:32700"  # Telemetry endpoint
       telemetryProvider: "prometheus"  # Telemetry provider (Prometheus in this case)
     geoLocation:
       cloudProvider: "GCP"  # Cloud provider for this cluster (e.g., GCP)
@@ -302,7 +290,6 @@ additional_apps:
     skip_on_verify_fail: false  # Do not skip if verification fails
 
 ```
-
 
 
 ### Explanation of YAML Fields
