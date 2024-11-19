@@ -2503,6 +2503,15 @@ prepare_worker_values_file() {
         # Update YAML configuration with new Grafana URL
         #yq eval ".kubeslice_worker.inline_values.egs.grafanaDashboardBaseUrl = \"${grafana_url}\" | del(.null)" --inplace "${KUBETALLY_INPUT_YAML}"
         yq eval ".kubeslice_worker[$worker_index].inline_values.egs.grafanaDashboardBaseUrl = \"${grafana_url}\" | del(.null)" --inplace "${KUBETALLY_INPUT_YAML}"
+
+        node_ip=""
+        while [ -z "${node_ip}" ] ; do 
+            node_ip="$(get_node_external_ip "${kubeconfigname}" "${kubecontextname}")"
+            sleep 10 
+        done
+
+        yq eval ".cluster_registration[${worker_index}].telemetry.endpoint = \"http://${node_ip}:32700\"" --inplace "${KUBETALLY_INPUT_YAML}"
+        echo "Telemetry endpoint url : http://${node_ip}:32700"
         
         echo "  Extracted values for worker $worker_name:"
         echo "  Worker Name: $worker_name"
