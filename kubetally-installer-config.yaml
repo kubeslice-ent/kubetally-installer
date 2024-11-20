@@ -190,3 +190,29 @@ additional_apps:
     verify_install: true  # Verify the installation of Prometheus
     verify_install_timeout: 600  # Timeout for verification (in seconds)
     skip_on_verify_fail: false  # Do not skip if verification fails
+
+  - name: "postgresql"
+    skip_installation: false  # Do not skip the installation of postgresql
+    use_global_kubeconfig: true  # Use global kubeconfig for postgresql
+    namespace: "postgresql"  # Namespace where postgresql will be installed
+    release: "postgresql"  # Helm release name for postgresql
+    chart: "postgresql"  # Helm chart name for postgresql
+    repo_url: "oci://registry-1.docker.io/bitnamicharts/postgresql"  # Helm repository URL for postgresql
+    version: "16.2.1"  # Version of the postgresql stack to install
+    specific_use_local_charts: true  # Use local charts for this application
+    values_file: ""  # Path to an external values file, if any
+    inline_values:  # Inline Helm values for postgresql
+      auth:
+        postgresPassword: ""  # Explicit password (use if not relying on `existingSecret`)
+        username: "postgres"  # Explicit username (fallback if `existingSecret` is not used)
+        password: "yourpassword"  # Password for PostgreSQL (optional)
+        database: "yourdatabase"  # Default database to create
+        existingSecret: "postgres-credentials"  # Pre-created secret containing credentials
+      primary:
+        persistence:
+          enabled: true  # Enable persistent storage for PostgreSQL
+          size: 10Gi  # Size of the Persistent Volume Claim
+    helm_flags: "--wait"  # Additional Helm flags for this application's installation
+    verify_install: true  # Verify the installation of postgresql
+    verify_install_timeout: 600  # Timeout for verification (in seconds)
+    skip_on_verify_fail: false  # Do not skip if verification fails
