@@ -2425,7 +2425,7 @@ register_clusters_in_controller() {
 
     node_ip=""
     while [ -z "${node_ip}" ] ; do 
-        node_ip="$(get_node_external_ip "${kubeconfigname}" "${kubecontextname}")"
+        node_ip="$(get_node_external_ip "${kubeconfig_path}" "${context_arg}")"
         sleep 10 
     done
     
