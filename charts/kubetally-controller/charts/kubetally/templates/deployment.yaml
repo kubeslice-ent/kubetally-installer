@@ -134,9 +134,9 @@ spec:
                       key: postgresDB
                 - name: DATABASE_SSL_MODE
                   valueFrom:
-                  secretKeyRef:
-                    name: {{ .Values.global.kubeTally.postgresSecretName | default "kubetally-db-credentials" }}  # Uses the provided or default secret name
-                    key: postgresSslmode
+                    secretKeyRef:
+                      name: {{ .Values.global.kubeTally.postgresSecretName | default "kubetally-db-credentials" }}  # Uses the provided or default secret name
+                      key: postgresSslmode
                 - name: NUM_AWS_PULL_WORKERS
                   value: "{{.Values.global.kubeTally.priceUpdaterWorkers}}"
                 - name: JOB_MODE
