@@ -173,7 +173,7 @@ additional_apps:
         service:
           type: NodePort
       grafana:
-        enabled: true
+        enabled: false
         grafana.ini:
           auth:
             disable_login_form: true
@@ -194,8 +194,8 @@ additional_apps:
   - name: "postgresql"
     skip_installation: false  # Do not skip the installation of postgresql
     use_global_kubeconfig: true  # Use global kubeconfig for postgresql
-    namespace: "postgresql"  # Namespace where postgresql will be installed
-    release: "postgresql"  # Helm release name for postgresql
+    namespace: "kt-postgresql"  # Namespace where postgresql will be installed
+    release: "kt-postgresql"  # Helm release name for postgresql
     chart: "postgresql"  # Helm chart name for postgresql
     repo_url: "oci://registry-1.docker.io/bitnamicharts/postgresql"  # Helm repository URL for postgresql
     version: "16.2.1"  # Version of the postgresql stack to install
@@ -203,11 +203,10 @@ additional_apps:
     values_file: ""  # Path to an external values file, if any
     inline_values:  # Inline Helm values for postgresql
       auth:
-        postgresPassword: ""  # Explicit password (use if not relying on `existingSecret`)
+        postgresPassword: "postgres"  # Explicit password (use if not relying on `existingSecret`)
         username: "postgres"  # Explicit username (fallback if `existingSecret` is not used)
-        password: "yourpassword"  # Password for PostgreSQL (optional)
-        database: "yourdatabase"  # Default database to create
-        existingSecret: "postgres-credentials"  # Pre-created secret containing credentials
+        password: "postgres"  # Password for PostgreSQL (optional)
+        database: "postgres"  # Default database to create
       primary:
         persistence:
           enabled: true  # Enable persistent storage for PostgreSQL
