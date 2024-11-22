@@ -1120,6 +1120,58 @@ parse_yaml() {
     for ((i = 0; i < ADDITIONAL_APPS_COUNT; i++)); do
         APP_NAME=$(yq e ".additional_apps[$i].name" "$yaml_file")
         APP_SKIP_INSTALLATION=$(yq e ".additional_apps[$i].skip_installation" "$yaml_file")
+
+        # Parsing PostgreSQL configuration from additional_apps
+        if [ "$APP_NAME" = "postgresql" ]; then
+            if [ -n "$APP_NAME" ]; then
+                echo "srini: $APP_SKIP_INSTALLATION"
+                if [ "$APP_SKIP_INSTALLATION" = "false" ]; then
+                    # Dynamic PostgreSQL values for installation
+                    echo "Dynamic PostgreSQL values for installation"
+                    postgresAddr=$(yq e '.additional_apps[] | select(.name=="postgresql") | .postgresAddr // "kt-postgresql.kt-postgresql.svc.cluster.local"' "$KUBETALLY_INPUT_YAML")
+                    postgresPort=$(yq e '.additional_apps[] | select(.name=="postgresql") | .postgresPort // 5432' "$KUBETALLY_INPUT_YAML")
+                    postgresUser=$(yq e '.additional_apps[] | select(.name=="postgresql") | .postgresUser // "postgres"' "$KUBETALLY_INPUT_YAML")
+                    postgresPassword=$(yq e '.additional_apps[] | select(.name=="postgresql") | .postgresPassword // "postgres"' "$KUBETALLY_INPUT_YAML")
+                    postgresDB=$(yq e '.additional_apps[] | select(.name=="postgresql") | .postgresDB // "postgres"' "$KUBETALLY_INPUT_YAML")
+                    postgresSslmode=$(yq e '.additional_apps[] | select(.name=="postgresql") | .postgresSslmode // "disable"' "$KUBETALLY_INPUT_YAML")
+                else
+                    # Using manual PostgreSQL inputs from config
+                    echo "Using manual PostgreSQL inputs from config"
+                    postgresAddr=$(yq e '.global.kubeTally.postgresAddr // ""' "$KUBETALLY_INPUT_YAML")
+                    postgresPort=$(yq e '.global.kubeTally.postgresPort // 5432' "$KUBETALLY_INPUT_YAML")
+                    postgresUser=$(yq e '.global.kubeTally.postgresUser // ""' "$KUBETALLY_INPUT_YAML")
+                    postgresPassword=$(yq e '.global.kubeTally.postgresPassword // ""' "$KUBETALLY_INPUT_YAML")
+                    postgresDB=$(yq e '.global.kubeTally.postgresDB // ""' "$KUBETALLY_INPUT_YAML")
+                    postgresSslmode=$(yq e '.global.kubeTally.postgresSslmode // "require"' "$KUBETALLY_INPUT_YAML")
+                fi
+            else
+                echo "❌ Error: PostgreSQL configuration missing in additional_apps."
+                exit 1
+            fi
+
+            # Debug outputs for PostgreSQL settings
+            echo "🔍 PostgreSQL Configuration:"
+            echo "  Address: $postgresAddr"
+            echo "  Port: $postgresPort"
+            echo "  User: $postgresUser"
+            echo "  Password: [Hidden]"
+            echo "  Database: $postgresDB"
+            echo "  SSL Mode: $postgresSslmode"
+
+            POSTGRES_INLINE=$(
+                    cat <<EOF
+global:
+  kubeTally:
+    postgresAddr: "$postgresAddr"
+    postgresPort: 5432
+    postgresUser: "$postgresUser"
+    postgresPassword: "$postgresPassword"
+    postgresDB: "$postgresDB"
+    postgresSslmode: $postgresSslmode
+EOF
+    )
+        fi
+
         APP_USE_GLOBAL_KUBECONFIG=$(yq e ".additional_apps[$i].use_global_kubeconfig" "$yaml_file")
         if [ -z "$APP_USE_GLOBAL_KUBECONFIG" ] || [ "$APP_USE_GLOBAL_KUBECONFIG" = "null" ]; then
             APP_USE_GLOBAL_KUBECONFIG="true"
@@ -1940,6 +1992,7 @@ install_or_upgrade_helm_chart() {
     local verify_install=${21}
     local verify_install_timeout=${22}
     local skip_on_verify_fail=${23}
+    local postgres_inline=${24}
 
     echo "-----------------------------------------"
     echo "🚀 Processing Helm chart installation"
@@ -2255,6 +2308,25 @@ EOF
     if [ -n "$inline_values" ] && [ "$inline_values" != "null" ]; then
         inline_values_file=$(create_values_file "$inline_values" "generated-inline-values")
         helm_cmd="$helm_cmd -f $inline_values_file"
+        if [ -n "$postgres_inline" ] && [ "$postgres_inline" != "null" ]; then
+            echo "🔧 Replacing PostgreSQL configuration in $inline_values_file:"
+            # Parse POSTGRES_INLINE and update inline_values_file dynamically
+            postgresAddr=$(echo "$POSTGRES_INLINE" | yq e '.global.kubeTally.postgresAddr' -)
+            postgresPort=$(echo "$POSTGRES_INLINE" | yq e '.global.kubeTally.postgresPort' -)
+            postgresUser=$(echo "$POSTGRES_INLINE" | yq e '.global.kubeTally.postgresUser' -)
+            postgresPassword=$(echo "$POSTGRES_INLINE" | yq e '.global.kubeTally.postgresPassword' -)
+            postgresDB=$(echo "$POSTGRES_INLINE" | yq e '.global.kubeTally.postgresDB' -)
+            postgresSslmode=$(echo "$POSTGRES_INLINE" | yq e '.global.kubeTally.postgresSslmode' -)
+            # Update specific keys in the inline_values_file using yq
+            yq eval -i "
+            .global.kubeTally.postgresAddr = \"$postgresAddr\" |
+            .global.kubeTally.postgresPort = 5432 |
+            .global.kubeTally.postgresUser = \"$postgresUser\" |
+            .global.kubeTally.postgresPassword = \"$postgresPassword\" |
+            .global.kubeTally.postgresDB = \"$postgresDB\" |
+            .global.kubeTally.postgresSslmode = \"$postgresSslmode\"
+            " "$inline_values_file"
+        fi
         echo "🗂  Using inline values file: $inline_values_file"
     fi
 
@@ -2498,19 +2570,19 @@ prepare_worker_values_file() {
                 kubecontextname=$(echo "$worker" | yq e '.kubecontext' -)
         fi
 
-        echo "Waiting for Grafana service to get an IP or port for worker..."
-        external_ip=""
-        while [ -z "${external_ip}" ] ; do 
-            external_ip="$(get_lb_external_ip "${kubeconfigname}" "${kubecontextname}" "monitoring" prometheus-grafana)"
-            sleep 10 
-        done
+        # echo "Waiting for Grafana service to get an IP or port for worker..."
+        # external_ip=""
+        # while [ -z "${external_ip}" ] ; do 
+        #     external_ip="$(get_lb_external_ip "${kubeconfigname}" "${kubecontextname}" "kt-monitoring" prometheus-grafana)"
+        #     sleep 10 
+        # done
 
-        grafana_url="http://${external_ip}/d/Oxed_c6Wz"
-        echo "Grafana URL: ${grafana_url}"
+        # grafana_url="http://${external_ip}/d/Oxed_c6Wz"
+        # echo "Grafana URL: ${grafana_url}"
 
         # Update YAML configuration with new Grafana URL
         #yq eval ".kubeslice_worker.inline_values.egs.grafanaDashboardBaseUrl = \"${grafana_url}\" | del(.null)" --inplace "${KUBETALLY_INPUT_YAML}"
-        yq eval ".kubeslice_worker[$worker_index].inline_values.egs.grafanaDashboardBaseUrl = \"${grafana_url}\" | del(.null)" --inplace "${KUBETALLY_INPUT_YAML}"
+        # yq eval ".kubeslice_worker[$worker_index].inline_values.egs.grafanaDashboardBaseUrl = \"${grafana_url}\" | del(.null)" --inplace "${KUBETALLY_INPUT_YAML}"
 
         node_ip=""
         while [ -z "${node_ip}" ] ; do 
@@ -2942,7 +3014,7 @@ fi
 # Process kubeslice-controller installation if enabled
 if [ "$ENABLE_INSTALL_CONTROLLER" = "true" ]; then
     echo "🚀 Installing or upgrading Kubeslice Controller..."
-    install_or_upgrade_helm_chart "$KUBESLICE_CONTROLLER_SKIP_INSTALLATION" "$KUBESLICE_CONTROLLER_RELEASE_NAME" "$KUBESLICE_CONTROLLER_CHART_NAME" "$KUBESLICE_CONTROLLER_NAMESPACE" "$KUBESLICE_CONTROLLER_USE_GLOBAL_KUBECONFIG" "$KUBESLICE_CONTROLLER_KUBECONFIG" "$KUBESLICE_CONTROLLER_KUBECONTEXT" "$KUBESLICE_CONTROLLER_REPO_URL" "$KUBESLICE_CONTROLLER_USERNAME" "$KUBESLICE_CONTROLLER_PASSWORD" "$KUBESLICE_CONTROLLER_VALUES_FILE" "$KUBESLICE_CONTROLLER_INLINE_VALUES" "$KUBESLICE_CONTROLLER_IMAGE_PULL_SECRET_REPO" "$KUBESLICE_CONTROLLER_IMAGE_PULL_SECRET_USERNAME" "$KUBESLICE_CONTROLLER_IMAGE_PULL_SECRET_PASSWORD" "$KUBESLICE_CONTROLLER_IMAGE_PULL_SECRET_EMAIL" "$KUBESLICE_CONTROLLER_HELM_FLAGS" "$USE_LOCAL_CHARTS" "$LOCAL_CHARTS_PATH" "$KUBESLICE_CONTROLLER_VERSION" "$KUBESLICE_CONTROLLER_VERIFY_INSTALL" "$KUBESLICE_CONTROLLER_VERIFY_INSTALL_TIMEOUT" "$KUBESLICE_CONTROLLER_SKIP_ON_VERIFY_FAIL"
+    install_or_upgrade_helm_chart "$KUBESLICE_CONTROLLER_SKIP_INSTALLATION" "$KUBESLICE_CONTROLLER_RELEASE_NAME" "$KUBESLICE_CONTROLLER_CHART_NAME" "$KUBESLICE_CONTROLLER_NAMESPACE" "$KUBESLICE_CONTROLLER_USE_GLOBAL_KUBECONFIG" "$KUBESLICE_CONTROLLER_KUBECONFIG" "$KUBESLICE_CONTROLLER_KUBECONTEXT" "$KUBESLICE_CONTROLLER_REPO_URL" "$KUBESLICE_CONTROLLER_USERNAME" "$KUBESLICE_CONTROLLER_PASSWORD" "$KUBESLICE_CONTROLLER_VALUES_FILE" "$KUBESLICE_CONTROLLER_INLINE_VALUES" "$KUBESLICE_CONTROLLER_IMAGE_PULL_SECRET_REPO" "$KUBESLICE_CONTROLLER_IMAGE_PULL_SECRET_USERNAME" "$KUBESLICE_CONTROLLER_IMAGE_PULL_SECRET_PASSWORD" "$KUBESLICE_CONTROLLER_IMAGE_PULL_SECRET_EMAIL" "$KUBESLICE_CONTROLLER_HELM_FLAGS" "$USE_LOCAL_CHARTS" "$LOCAL_CHARTS_PATH" "$KUBESLICE_CONTROLLER_VERSION" "$KUBESLICE_CONTROLLER_VERIFY_INSTALL" "$KUBESLICE_CONTROLLER_VERIFY_INSTALL_TIMEOUT" "$KUBESLICE_CONTROLLER_SKIP_ON_VERIFY_FAIL" "$POSTGRES_INLINE"
 fi
 
 # Process kubeslice-ui installation if enabled

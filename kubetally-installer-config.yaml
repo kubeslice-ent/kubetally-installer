@@ -147,7 +147,7 @@ cluster_registration:
     project_name: "avesha"
     telemetry:
       enabled: true  # Enable telemetry for this cluster
-      endpoint: "http://prometheus-kube-prometheus-prometheus.monitoring.svc.cluster.local:32700"  # Telemetry endpoint
+      endpoint: "http://prometheus-kube-prometheus-prometheus.kt-monitoring.svc.cluster.local:32700"  # Telemetry endpoint
       telemetryProvider: "prometheus"  # Telemetry provider (Prometheus in this case)
     geoLocation:
       cloudProvider: "GCP"  # Cloud provider for this cluster (e.g., GCP)
@@ -161,8 +161,8 @@ additional_apps:
   - name: "prometheus"
     skip_installation: false  # Do not skip the installation of Prometheus
     use_global_kubeconfig: true  # Use global kubeconfig for Prometheus
-    namespace: "monitoring"  # Namespace where Prometheus will be installed
-    release: "prometheus"  # Helm release name for Prometheus
+    namespace: "kt-monitoring"  # Namespace where Prometheus will be installed
+    release: "kt-prometheus"  # Helm release name for Prometheus
     chart: "kube-prometheus-stack"  # Helm chart name for Prometheus
     repo_url: "https://prometheus-community.github.io/helm-charts"  # Helm repository URL for Prometheus
     version: "v45.0.0"  # Version of the Prometheus stack to install
@@ -173,7 +173,7 @@ additional_apps:
         service:
           type: NodePort
       grafana:
-        enabled: true
+        enabled: false
         grafana.ini:
           auth:
             disable_login_form: true
@@ -194,8 +194,8 @@ additional_apps:
   - name: "postgresql"
     skip_installation: false  # Do not skip the installation of postgresql
     use_global_kubeconfig: true  # Use global kubeconfig for postgresql
-    namespace: "postgresql"  # Namespace where postgresql will be installed
-    release: "postgresql"  # Helm release name for postgresql
+    namespace: "kt-postgresql"  # Namespace where postgresql will be installed
+    release: "kt-postgresql"  # Helm release name for postgresql
     chart: "postgresql"  # Helm chart name for postgresql
     repo_url: "oci://registry-1.docker.io/bitnamicharts/postgresql"  # Helm repository URL for postgresql
     version: "16.2.1"  # Version of the postgresql stack to install
@@ -203,11 +203,10 @@ additional_apps:
     values_file: ""  # Path to an external values file, if any
     inline_values:  # Inline Helm values for postgresql
       auth:
-        postgresPassword: ""  # Explicit password (use if not relying on `existingSecret`)
+        postgresPassword: "postgres"  # Explicit password (use if not relying on `existingSecret`)
         username: "postgres"  # Explicit username (fallback if `existingSecret` is not used)
-        password: "yourpassword"  # Password for PostgreSQL (optional)
-        database: "yourdatabase"  # Default database to create
-        existingSecret: "postgres-credentials"  # Pre-created secret containing credentials
+        password: "postgres"  # Password for PostgreSQL (optional)
+        database: "postgres"  # Default database to create
       primary:
         persistence:
           enabled: true  # Enable persistent storage for PostgreSQL
