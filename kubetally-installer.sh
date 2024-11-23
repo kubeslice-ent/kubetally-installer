@@ -1137,12 +1137,12 @@ parse_yaml() {
                 else
                     # Using manual PostgreSQL inputs from config
                     echo "Using manual PostgreSQL inputs from config"
-                    postgresAddr=$(yq e '.global.kubeTally.postgresAddr // ""' "$KUBETALLY_INPUT_YAML")
-                    postgresPort=$(yq e '.global.kubeTally.postgresPort // 5432' "$KUBETALLY_INPUT_YAML")
-                    postgresUser=$(yq e '.global.kubeTally.postgresUser // ""' "$KUBETALLY_INPUT_YAML")
-                    postgresPassword=$(yq e '.global.kubeTally.postgresPassword // ""' "$KUBETALLY_INPUT_YAML")
-                    postgresDB=$(yq e '.global.kubeTally.postgresDB // ""' "$KUBETALLY_INPUT_YAML")
-                    postgresSslmode=$(yq e '.global.kubeTally.postgresSslmode // "require"' "$KUBETALLY_INPUT_YAML")
+                    postgresAddr=$(yq e '.kubeslice_controller.inline_values.global.kubeTally.postgresAddr // ""' "$KUBETALLY_INPUT_YAML")
+                    postgresPort=$(yq e '.kubeslice_controller.inline_values.global.kubeTally.postgresPort // 5432' "$KUBETALLY_INPUT_YAML")
+                    postgresUser=$(yq e '.kubeslice_controller.inline_values.global.kubeTally.postgresUser // ""' "$KUBETALLY_INPUT_YAML")
+                    postgresPassword=$(yq e '.kubeslice_controller.inline_values.global.kubeTally.postgresPassword // ""' "$KUBETALLY_INPUT_YAML")
+                    postgresDB=$(yq e '.kubeslice_controller.inline_values.global.kubeTally.postgresDB // ""' "$KUBETALLY_INPUT_YAML")
+                    postgresSslmode=$(yq e '.kubeslice_controller.inline_values.global.kubeTally.postgresSslmode // "require"' "$KUBETALLY_INPUT_YAML")
                 fi
             else
                 echo "❌ Error: PostgreSQL configuration missing in additional_apps."
@@ -1162,14 +1162,15 @@ parse_yaml() {
                     cat <<EOF
 global:
   kubeTally:
-    postgresAddr: "$postgresAddr"
-    postgresPort: 5432
-    postgresUser: "$postgresUser"
-    postgresPassword: "$postgresPassword"
-    postgresDB: "$postgresDB"
+    postgresAddr: $postgresAddr
+    postgresPort: $postgresPort
+    postgresUser: $postgresUser
+    postgresPassword: $postgresPassword
+    postgresDB: $postgresDB
     postgresSslmode: $postgresSslmode
 EOF
     )
+           echo "script $POSTGRES_INLINE"
         fi
 
         APP_USE_GLOBAL_KUBECONFIG=$(yq e ".additional_apps[$i].use_global_kubeconfig" "$yaml_file")
@@ -2311,21 +2312,37 @@ EOF
         if [ -n "$postgres_inline" ] && [ "$postgres_inline" != "null" ]; then
             echo "🔧 Replacing PostgreSQL configuration in $inline_values_file:"
             # Parse POSTGRES_INLINE and update inline_values_file dynamically
-            postgresAddr=$(echo "$POSTGRES_INLINE" | yq e '.global.kubeTally.postgresAddr' -)
-            postgresPort=$(echo "$POSTGRES_INLINE" | yq e '.global.kubeTally.postgresPort' -)
-            postgresUser=$(echo "$POSTGRES_INLINE" | yq e '.global.kubeTally.postgresUser' -)
-            postgresPassword=$(echo "$POSTGRES_INLINE" | yq e '.global.kubeTally.postgresPassword' -)
-            postgresDB=$(echo "$POSTGRES_INLINE" | yq e '.global.kubeTally.postgresDB' -)
-            postgresSslmode=$(echo "$POSTGRES_INLINE" | yq e '.global.kubeTally.postgresSslmode' -)
+            postgresAddr=$(echo "$POSTGRES_INLINE" | yq e '.global.kubeTally.postgresAddr' - | tr -d '\n')
+            postgresPort=$(echo "$POSTGRES_INLINE" | yq e '.global.kubeTally.postgresPort' - | tr -d '\n')
+            postgresUser=$(echo "$POSTGRES_INLINE" | yq e '.global.kubeTally.postgresUser' - | tr -d '\n')
+            postgresPassword=$(echo "$POSTGRES_INLINE" | yq e '.global.kubeTally.postgresPassword' - | tr -d '\n')
+            postgresDB=$(echo "$POSTGRES_INLINE" | yq e '.global.kubeTally.postgresDB' - | tr -d '\n')
+            postgresSslmode=$(echo "$POSTGRES_INLINE" | yq e '.global.kubeTally.postgresSslmode' - | tr -d '\n')
+
+            postgresAddr=\"$postgresAddr\"
+            postgresUser=\"$postgresUser\"
+            postgresPassword=\"$postgresPassword\"
+            postgresDB=\"$postgresDB\"
+            postgresSslmode="\"$postgresSslmode\""
+
+            # Debug outputs for PostgreSQL settings
+            echo "🔍 PostgreSQL Configuration:"
+            echo "  Address: $postgresAddr"
+            echo "  Port: $postgresPort"
+            echo "  User: $postgresUser"
+            echo "  Password: $postgresPassword"
+            echo "  Database: $postgresDB"
+            echo "  SSL Mode: $postgresSslmode"
+
             # Update specific keys in the inline_values_file using yq
             yq eval -i "
-            .global.kubeTally.postgresAddr = \"$postgresAddr\" |
-            .global.kubeTally.postgresPort = 5432 |
-            .global.kubeTally.postgresUser = \"$postgresUser\" |
-            .global.kubeTally.postgresPassword = \"$postgresPassword\" |
-            .global.kubeTally.postgresDB = \"$postgresDB\" |
-            .global.kubeTally.postgresSslmode = \"$postgresSslmode\"
-            " "$inline_values_file"
+.global.kubeTally.postgresAddr = $postgresAddr |
+.global.kubeTally.postgresPort = $postgresPort |
+.global.kubeTally.postgresUser = $postgresUser |
+.global.kubeTally.postgresPassword = $postgresPassword |
+.global.kubeTally.postgresDB = $postgresDB |
+.global.kubeTally.postgresSslmode = $postgresSslmode
+" "$inline_values_file"
         fi
         echo "🗂  Using inline values file: $inline_values_file"
     fi
