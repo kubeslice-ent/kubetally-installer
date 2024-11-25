@@ -61,9 +61,9 @@ Before you begin, ensure the following steps are completed:
          ```
      - **🐘 PostgreSQL Configuration:**
        - In-cluster PostgreSQL Service:
-          - Set skip_installation to false for PostgreSQL in the additional_apps section of the configuration.
+          - Set **skip_installation** to **false** for PostgreSQL in the additional_apps section of the configuration.
        - Managed PostgreSQL Service:
-          - Set skip_installation to true when using a managed PostgreSQL service.
+          - Set **skip_installation** to **true** when using a managed PostgreSQL service.
           - Provide the following PostgreSQL inputs in the configuration file:
          ``` yaml
           global:
