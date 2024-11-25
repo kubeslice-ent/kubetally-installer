@@ -1124,7 +1124,6 @@ parse_yaml() {
         # Parsing PostgreSQL configuration from additional_apps
         if [ "$APP_NAME" = "postgresql" ]; then
             if [ -n "$APP_NAME" ]; then
-                echo "srini: $APP_SKIP_INSTALLATION"
                 if [ "$APP_SKIP_INSTALLATION" = "false" ]; then
                     # Dynamic PostgreSQL values for installation
                     echo "Dynamic PostgreSQL values for installation"
@@ -1154,7 +1153,7 @@ parse_yaml() {
             echo "  Address: $postgresAddr"
             echo "  Port: $postgresPort"
             echo "  User: $postgresUser"
-            echo "  Password: [Hidden]"
+            echo "  Password: $postgresPassword"
             echo "  Database: $postgresDB"
             echo "  SSL Mode: $postgresSslmode"
 
@@ -1170,7 +1169,6 @@ global:
     postgresSslmode: $postgresSslmode
 EOF
     )
-           echo "script $POSTGRES_INLINE"
         fi
 
         APP_USE_GLOBAL_KUBECONFIG=$(yq e ".additional_apps[$i].use_global_kubeconfig" "$yaml_file")
@@ -2598,8 +2596,8 @@ prepare_worker_values_file() {
         # echo "Grafana URL: ${grafana_url}"
 
         # Update YAML configuration with new Grafana URL
-        #yq eval ".kubeslice_worker.inline_values.egs.grafanaDashboardBaseUrl = \"${grafana_url}\" | del(.null)" --inplace "${KUBETALLY_INPUT_YAML}"
-        # yq eval ".kubeslice_worker[$worker_index].inline_values.egs.grafanaDashboardBaseUrl = \"${grafana_url}\" | del(.null)" --inplace "${KUBETALLY_INPUT_YAML}"
+        #yq eval ".kubeslice_worker.inline_values.kubetally.grafanaDashboardBaseUrl = \"${grafana_url}\" | del(.null)" --inplace "${KUBETALLY_INPUT_YAML}"
+        # yq eval ".kubeslice_worker[$worker_index].inline_values.kubetally.grafanaDashboardBaseUrl = \"${grafana_url}\" | del(.null)" --inplace "${KUBETALLY_INPUT_YAML}"
 
         node_ip=""
         while [ -z "${node_ip}" ] ; do 
@@ -2696,7 +2694,7 @@ prepare_worker_values_file() {
             context_arg="--context $kubecontext"
         fi
 
-        # Extract and output inline values from the EGS input YAML
+        # Extract and output inline values from the Kubetally input YAML
         inline_values=$(yq e ".kubeslice_worker[$worker_index].inline_values | select(. != null)" "$KUBETALLY_INPUT_YAML")
         echo "Inline values extracted for worker $worker_name:"
         echo "$inline_values"

@@ -471,15 +471,17 @@ primary:
   resourcesPreset: "nano"
   ## @param primary.resources Set container requests and limits for different resources like CPU or memory (essential for production workloads)
   ## Example:
-  ## resources:
-  ##   requests:
-  ##     cpu: 2
-  ##     memory: 512Mi
-  ##   limits:
-  ##     cpu: 3
-  ##     memory: 1024Mi
+  resources:
+    requests:
+      cpu: 300m
+      memory: 512Mi
+      ephemeral-storage: "3Gi"
+    limits:
+      cpu: 500m
+      memory: 1024Mi
+      ephemeral-storage: "5Gi"
   ##
-  resources: {}
+  # resources: {}
   ## Pod Security Context
   ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/
   ## @param primary.podSecurityContext.enabled Enable security context
@@ -925,15 +927,17 @@ readReplicas:
   resourcesPreset: "nano"
   ## @param readReplicas.resources Set container requests and limits for different resources like CPU or memory (essential for production workloads)
   ## Example:
-  ## resources:
-  ##   requests:
-  ##     cpu: 2
-  ##     memory: 512Mi
-  ##   limits:
-  ##     cpu: 3
-  ##     memory: 1024Mi
+  resources:
+    requests:
+      cpu: 300m
+      memory: 512Mi
+      ephemeral-storage: "3Gi"
+    limits:
+      cpu: 500m
+      memory: 1024Mi
+      ephemeral-storage: "5Gi"
   ##
-  resources: {}
+  # resources: {}
   ## Pod Security Context
   ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/
   ## @param readReplicas.podSecurityContext.enabled Enable security context
