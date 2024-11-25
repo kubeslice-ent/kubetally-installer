@@ -1,0 +1,55 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: kubeslice-ui-v2
+  name: kubeslice-ui-v2
+  namespace: kubeslice-controller
+spec:
+  ports:
+    - name: http
+      port: 80
+      protocol: TCP
+      targetPort: 80
+  selector:
+    app: kubeslice-ui-v2
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kubeslice-ui-v2
+  namespace: kubeslice-controller
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kubeslice-ui-v2
+  template:
+    metadata:
+      labels:
+        app: kubeslice-ui-v2
+    spec:
+      volumes:
+        - name: json-config
+          projected:
+            sources:
+              - configMap:
+                  name: kubeslice-ui-json-config
+      containers:
+        - image: '{{ .Values.global.imageRegistry }}/{{ .Values.kubeslice.uiv2.image }}:{{ .Values.kubeslice.uiv2.tag }}'
+          imagePullPolicy: '{{ .Values.kubeslice.uiv2.pullPolicy }}'
+          name: kubeslice-ui-v2
+          ports:
+            - containerPort: 3000
+          volumeMounts:
+            - name: json-config
+              mountPath: /usr/local/apache2/htdocs/v2/product.json
+              subPath: product.json
+      {{- if .Values.imagePullSecretsName }}
+      imagePullSecrets:
+        - name: {{ .Values.imagePullSecretsName }}
+      {{- end }}
+      tolerations:
+        - operator: "Exists"
