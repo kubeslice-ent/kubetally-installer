@@ -53,21 +53,19 @@ kubeslice_controller:
   kubeconfig: ""  # Path to the kubeconfig file specific to the controller
   kubecontext: ""  # Kubecontext specific to the controller; if empty, uses the global context
   namespace: "kubeslice-controller"  # Kubernetes namespace where the controller will be installed
-  release: "kubetally-controller"  # Helm release name for the controller
+  release: "kt-controller"  # Helm release name for the controller
   chart: "kubetally-controller"  # Helm chart name for the controller
   inline_values:  # Inline Helm values for the controller chart
     global:
       imageRegistry: docker.io/aveshasystems
       kubeTally:
-        # Enable or disable KubeTally
         enabled: true
         postgresSecretName: kubetally-db-credentials   # Default value, secret name can be overridden
-        # Ensure to configure the mandatory PostgreSQL database settings when 'kubetally enable' is true.
-        postgresAddr: ""                         # Optional, can be specified here or retrieved from the secret
-        postgresPort:                            # Optional, can be specified here or retrieved from the secret
-        postgresUser: ""                         # Optional, can be specified here or retrieved from the secret
-        postgresPassword: ""                     # Optional, can be specified here or retrieved from the secret
-        postgresDB: ""                           # Optional, can be specified here or retrieved from the secret
+        postgresAddr:                     # Optional, can be specified here or retrieved from the secret
+        postgresPort:                           # Optional, can be specified here or retrieved from the secret
+        postgresUser:                       # Optional, can be specified here or retrieved from the secret
+        postgresPassword:                    # Optional, can be specified here or retrieved from the secret
+        postgresDB:                         # Optional, can be specified here or retrieved from the secret
         postgresSslmode: require
     kubeslice:
       controller: 
@@ -91,7 +89,7 @@ kubeslice_ui:
   skip_installation: false  # Do not skip the installation of the UI
   use_global_kubeconfig: true  # Use global kubeconfig for the UI installation
   namespace: "kubeslice-controller"  # Kubernetes namespace where the UI will be installed
-  release: "kubetally-ui"  # Helm release name for the UI
+  release: "kt-ui"  # Helm release name for the UI
   chart: "kubetally-ui"  # Helm chart name for the UI
   inline_values:  # Inline Helm values for the UI chart
     global:
@@ -118,7 +116,7 @@ kubeslice_worker:
     skip_installation: false  # Do not skip the installation of the worker
     specific_use_local_charts: true  # Override to use local charts for this worker
     namespace: "kubeslice-system"  # Kubernetes namespace for this worker
-    release: "kubetally-worker1"  # Helm release name for the worker
+    release: "kt-worker1"  # Helm release name for the worker
     chart: "kubetally-worker"  # Helm chart name for the worker
     inline_values:  # Inline Helm values for the worker chart
       global:

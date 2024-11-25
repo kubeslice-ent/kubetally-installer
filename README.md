@@ -60,19 +60,21 @@ Before you begin, ensure the following steps are completed:
          global_kubecontext: ""  # Global kubecontext (MANDATORY)
          ```
      - **🐘 PostgreSQL Configuration:**
-       - Set the global `kubeconfig` and `kubecontext` parameters:
+       - In-cluster PostgreSQL Service:
+          - Set skip_installation to false for PostgreSQL in the additional_apps section of the configuration.
+       - Managed PostgreSQL Service:
+          - Set skip_installation to true when using a managed PostgreSQL service.
+          - Provide the following PostgreSQL inputs in the configuration file:
          ``` yaml
           global:
             kubeTally:
-              # Enable or disable KubeTally
               enabled: true
-              postgresSecretName: kubetally-db-credentials   # Default value, secret name can be overridden
-              # Ensure to configure the mandatory PostgreSQL database settings when 'kubetally enable' is true.
-              postgresAddr: ""                         # Optional, can be specified here or retrieved from the secret
-              postgresPort:                            # Optional, can be specified here or retrieved from the secret
-              postgresUser: ""                         # Optional, can be specified here or retrieved from the secret
-              postgresPassword: ""                     # Optional, can be specified here or retrieved from the secret
-              postgresDB: ""                           # Optional, can be specified here or retrieved from the secret
+              postgresSecretName: kubetally-db-credentials
+              postgresAddr:                        
+              postgresPort:                            
+              postgresUser:                        
+              postgresPassword:                    
+              postgresDB:                          
          ```
 
 3. **🚀 Run the Installation Script:**
@@ -157,21 +159,19 @@ kubeslice_controller:
   kubeconfig: ""  # Path to the kubeconfig file specific to the controller
   kubecontext: ""  # Kubecontext specific to the controller; if empty, uses the global context
   namespace: "kubeslice-controller"  # Kubernetes namespace where the controller will be installed
-  release: "kubetally-controller"  # Helm release name for the controller
+  release: "kt-controller"  # Helm release name for the controller
   chart: "kubetally-controller"  # Helm chart name for the controller
   inline_values:  # Inline Helm values for the controller chart
     global:
       imageRegistry: docker.io/aveshasystems
       kubeTally:
-        # Enable or disable KubeTally
         enabled: true
         postgresSecretName: kubetally-db-credentials   # Default value, secret name can be overridden
-        # Ensure to configure the mandatory PostgreSQL database settings when 'kubetally enable' is true.
-        postgresAddr: ""                         # Optional, can be specified here or retrieved from the secret
-        postgresPort:                            # Optional, can be specified here or retrieved from the secret
-        postgresUser: ""                         # Optional, can be specified here or retrieved from the secret
-        postgresPassword: ""                     # Optional, can be specified here or retrieved from the secret
-        postgresDB: ""                           # Optional, can be specified here or retrieved from the secret
+        postgresAddr:                     # Optional, can be specified here or retrieved from the secret
+        postgresPort:                           # Optional, can be specified here or retrieved from the secret
+        postgresUser:                       # Optional, can be specified here or retrieved from the secret
+        postgresPassword:                    # Optional, can be specified here or retrieved from the secret
+        postgresDB:                         # Optional, can be specified here or retrieved from the secret
         postgresSslmode: require
     kubeslice:
       controller: 
@@ -195,7 +195,7 @@ kubeslice_ui:
   skip_installation: false  # Do not skip the installation of the UI
   use_global_kubeconfig: true  # Use global kubeconfig for the UI installation
   namespace: "kubeslice-controller"  # Kubernetes namespace where the UI will be installed
-  release: "kubetally-ui"  # Helm release name for the UI
+  release: "kt-ui"  # Helm release name for the UI
   chart: "kubetally-ui"  # Helm chart name for the UI
   inline_values:  # Inline Helm values for the UI chart
     global:
@@ -222,7 +222,7 @@ kubeslice_worker:
     skip_installation: false  # Do not skip the installation of the worker
     specific_use_local_charts: true  # Override to use local charts for this worker
     namespace: "kubeslice-system"  # Kubernetes namespace for this worker
-    release: "kubetally-worker1"  # Helm release name for the worker
+    release: "kt-worker1"  # Helm release name for the worker
     chart: "kubetally-worker"  # Helm chart name for the worker
     inline_values:  # Inline Helm values for the worker chart
       global:
@@ -251,7 +251,7 @@ cluster_registration:
     project_name: "avesha"
     telemetry:
       enabled: true  # Enable telemetry for this cluster
-      endpoint: "http://prometheus-kube-prometheus-prometheus.monitoring.svc.cluster.local:32700"  # Telemetry endpoint
+      endpoint: "http://prometheus-kube-prometheus-prometheus.kt-monitoring.svc.cluster.local:32700"  # Telemetry endpoint
       telemetryProvider: "prometheus"  # Telemetry provider (Prometheus in this case)
     geoLocation:
       cloudProvider: "GCP"  # Cloud provider for this cluster (e.g., GCP)
@@ -265,8 +265,8 @@ additional_apps:
   - name: "prometheus"
     skip_installation: false  # Do not skip the installation of Prometheus
     use_global_kubeconfig: true  # Use global kubeconfig for Prometheus
-    namespace: "monitoring"  # Namespace where Prometheus will be installed
-    release: "prometheus"  # Helm release name for Prometheus
+    namespace: "kt-monitoring"  # Namespace where Prometheus will be installed
+    release: "kt-prometheus"  # Helm release name for Prometheus
     chart: "kube-prometheus-stack"  # Helm chart name for Prometheus
     repo_url: "https://prometheus-community.github.io/helm-charts"  # Helm repository URL for Prometheus
     version: "v45.0.0"  # Version of the Prometheus stack to install
@@ -275,9 +275,9 @@ additional_apps:
     inline_values:  # Inline Helm values for Prometheus
       prometheus:
         service:
-          type: ClusterIP
+          type: NodePort
       grafana:
-        enabled: true
+        enabled: false
         grafana.ini:
           auth:
             disable_login_form: true
@@ -292,6 +292,31 @@ additional_apps:
           size: 1Gi
     helm_flags: "--wait"  # Additional Helm flags for this application's installation
     verify_install: true  # Verify the installation of Prometheus
+    verify_install_timeout: 600  # Timeout for verification (in seconds)
+    skip_on_verify_fail: false  # Do not skip if verification fails
+
+  - name: "postgresql"
+    skip_installation: false  # Do not skip the installation of postgresql
+    use_global_kubeconfig: true  # Use global kubeconfig for postgresql
+    namespace: "kt-postgresql"  # Namespace where postgresql will be installed
+    release: "kt-postgresql"  # Helm release name for postgresql
+    chart: "postgresql"  # Helm chart name for postgresql
+    repo_url: "oci://registry-1.docker.io/bitnamicharts/postgresql"  # Helm repository URL for postgresql
+    version: "16.2.1"  # Version of the postgresql stack to install
+    specific_use_local_charts: true  # Use local charts for this application
+    values_file: ""  # Path to an external values file, if any
+    inline_values:  # Inline Helm values for postgresql
+      auth:
+        postgresPassword: "postgres"  # Explicit password (use if not relying on `existingSecret`)
+        username: "postgres"  # Explicit username (fallback if `existingSecret` is not used)
+        password: "postgres"  # Password for PostgreSQL (optional)
+        database: "postgres"  # Default database to create
+      primary:
+        persistence:
+          enabled: true  # Enable persistent storage for PostgreSQL
+          size: 10Gi  # Size of the Persistent Volume Claim
+    helm_flags: "--wait"  # Additional Helm flags for this application's installation
+    verify_install: true  # Verify the installation of postgresql
     verify_install_timeout: 600  # Timeout for verification (in seconds)
     skip_on_verify_fail: false  # Do not skip if verification fails
 
