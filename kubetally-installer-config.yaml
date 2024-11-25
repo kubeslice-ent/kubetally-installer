@@ -1,0 +1,215 @@
+# Base path to the root directory of your cloned repository
+base_path: ""  # If left empty, the script will use the relative path to the script as the base path
+
+# Precheck options
+precheck: true  # Run general prechecks before starting the installation
+kubeslice_precheck: true  # Run specific prechecks for Kubeslice components
+
+# Global installation verification settings
+verify_install: true  # Enable verification of installations globally
+verify_install_timeout: 600  # Timeout for global installation verification (in seconds)
+skip_on_verify_fail: false  # If set to true, skip steps where verification fails, otherwise exit on failure
+
+# Helm repository settings
+use_local_charts: true  # Use local Helm charts instead of fetching them from a repository
+local_charts_path: "charts"  # Path to the directory containing local Helm charts
+global_helm_repo_url: ""  # URL for the global Helm repository (if not using local charts)
+global_helm_username: ""  # Username for accessing the global Helm repository
+global_helm_password: ""  # Password for accessing the global Helm repository
+readd_helm_repos: true  # Re-add Helm repositories even if they are already present
+
+# List of required binaries for the installation process
+required_binaries:
+  - yq  # YAML processor
+  - helm  # Helm package manager
+  - jq  # JSON processor
+  - kubectl  # Kubernetes command-line tool
+
+# Global image pull secret settings
+global_image_pull_secret:
+  repository: "https://index.docker.io/v1/"  # Docker registry URL
+  username: ""  # Global Docker registry username
+  password: ""  # Global Docker registry password
+
+# Node labeling settings
+add_node_label: true  # Enable node labeling during installation
+
+# Kubeconfig settings
+global_kubeconfig: ""  # Relative Path to the global kubeconfig file must be in script directory (used if no specific kubeconfig is provided) - Mandatory
+global_kubecontext: ""  # Global kubecontext to use - Mandatory
+use_global_context: true  # If true, use the global kubecontext for all operations by default
+
+# Enable or disable specific stages of the installation
+enable_prepare_worker_values_file: true  # Prepare the worker values file for Helm charts
+enable_install_controller: true  # Enable the installation of the Kubeslice controller
+enable_install_ui: true  # Enable the installation of the Kubeslice UI
+enable_install_worker: true  # Enable the installation of Kubeslice workers
+
+# Kubeslice controller installation settings
+kubeslice_controller:
+  skip_installation: false  # Do not skip the installation of the controller
+  use_global_kubeconfig: true  # Use global kubeconfig for the controller installation
+  specific_use_local_charts: true  # Override to use local charts for the controller
+  kubeconfig: ""  # Path to the kubeconfig file specific to the controller
+  kubecontext: ""  # Kubecontext specific to the controller; if empty, uses the global context
+  namespace: "kubeslice-controller"  # Kubernetes namespace where the controller will be installed
+  release: "kt-controller"  # Helm release name for the controller
+  chart: "kubetally-controller"  # Helm chart name for the controller
+  inline_values:  # Inline Helm values for the controller chart
+    global:
+      imageRegistry: docker.io/aveshasystems
+      kubeTally:
+        enabled: true
+        postgresSecretName: kubetally-db-credentials   # Default value, secret name can be overridden
+        postgresAddr:                     # Optional, can be specified here or retrieved from the secret
+        postgresPort:                           # Optional, can be specified here or retrieved from the secret
+        postgresUser:                       # Optional, can be specified here or retrieved from the secret
+        postgresPassword:                    # Optional, can be specified here or retrieved from the secret
+        postgresDB:                         # Optional, can be specified here or retrieved from the secret
+        postgresSslmode: require
+    kubeslice:
+      controller: 
+        endpoint: ""  # Endpoint of the controller API server; auto-fetched if left empty
+        migration:
+          minio:
+            install: "false"  # Do not install MinIO during migration
+    prometheus:
+      server:
+        persistentVolume:       # Enable/disable Persistent Volume Claim for Prometheus data
+          enabled: true         # Enable/disable Persistent Volume Claim for Prometheus data
+          size: 5Gi             # Size of the PVC
+      retention: "30d"          # Retention period for Prometheus data
+  helm_flags: "--timeout 10m --atomic"  # Additional Helm flags for the installation
+  verify_install: true  # Verify the installation of the controller
+  verify_install_timeout: 30  # Timeout for the controller installation verification (in seconds)
+  skip_on_verify_fail: false  # If verification fails, do not skip the step
+
+# Kubeslice UI installation settings
+kubeslice_ui:
+  skip_installation: false  # Do not skip the installation of the UI
+  use_global_kubeconfig: true  # Use global kubeconfig for the UI installation
+  namespace: "kubeslice-controller"  # Kubernetes namespace where the UI will be installed
+  release: "kt-ui"  # Helm release name for the UI
+  chart: "kubetally-ui"  # Helm chart name for the UI
+  inline_values:  # Inline Helm values for the UI chart
+    global:
+      imageRegistry: docker.io/aveshasystems
+    kubeTally:
+      enabled: true
+    kubeslice:
+      productName: kubetally
+      dashboard:
+        enabled: false     # Enable or disable kubernetes-dashboard, bydefault false
+      uiproxy:
+        service:
+          type: LoadBalancer
+  helm_flags: "--atomic"  # Additional Helm flags for the UI installation
+  verify_install: true  # Verify the installation of the UI
+  verify_install_timeout: 50  # Timeout for the UI installation verification (in seconds)
+  skip_on_verify_fail: false  # If UI verification fails, do not skip the step
+  specific_use_local_charts: true  # Override to use local charts for the UI
+
+# Kubeslice worker installation settings
+kubeslice_worker:
+  - name: "worker-1"
+    use_global_kubeconfig: true  # Use global kubeconfig for this worker
+    skip_installation: false  # Do not skip the installation of the worker
+    specific_use_local_charts: true  # Override to use local charts for this worker
+    namespace: "kubeslice-system"  # Kubernetes namespace for this worker
+    release: "kt-worker1"  # Helm release name for the worker
+    chart: "kubetally-worker"  # Helm chart name for the worker
+    inline_values:  # Inline Helm values for the worker chart
+      global:
+        imageRegistry: docker.io/aveshasystems
+      kubesliceNetworking:
+        enabled: false  # Disable Kubeslice networking for this worker
+      metrics:
+        insecure: true  # Allow insecure connections for metrics
+    helm_flags: "--atomic"  # Additional Helm flags for the worker installation
+    verify_install: true  # Verify the installation of the worker
+    verify_install_timeout: 60  # Timeout for the worker installation verification (in seconds)
+    skip_on_verify_fail: false  # Do not skip if worker verification fails
+
+# Project and cluster registration settings
+enable_project_creation: true  # Enable project creation in Kubeslice
+enable_cluster_registration: true  # Enable cluster registration in Kubeslice
+
+# Define projects
+projects:
+  - name: "avesha"
+    username: "admin"  # Username for accessing the Kubeslice project
+
+# Define cluster registration
+cluster_registration:
+  - cluster_name: "worker-1"
+    project_name: "avesha"
+    telemetry:
+      enabled: true  # Enable telemetry for this cluster
+      endpoint: "http://prometheus-kube-prometheus-prometheus.kt-monitoring.svc.cluster.local:32700"  # Telemetry endpoint
+      telemetryProvider: "prometheus"  # Telemetry provider (Prometheus in this case)
+    geoLocation:
+      cloudProvider: "GCP"  # Cloud provider for this cluster (e.g., GCP)
+      cloudRegion: "us-central1"  # Cloud region for this cluster (e.g., us-central1)
+
+# Enable or disable the installation of additional applications
+enable_install_additional_apps: true  # Set to true to enable additional apps installation
+
+# Define additional applications to install
+additional_apps:
+  - name: "prometheus"
+    skip_installation: false  # Do not skip the installation of Prometheus
+    use_global_kubeconfig: true  # Use global kubeconfig for Prometheus
+    namespace: "kt-monitoring"  # Namespace where Prometheus will be installed
+    release: "kt-prometheus"  # Helm release name for Prometheus
+    chart: "kube-prometheus-stack"  # Helm chart name for Prometheus
+    repo_url: "https://prometheus-community.github.io/helm-charts"  # Helm repository URL for Prometheus
+    version: "v45.0.0"  # Version of the Prometheus stack to install
+    specific_use_local_charts: true  # Use local charts for this application
+    values_file: ""  # Path to an external values file, if any
+    inline_values:  # Inline Helm values for Prometheus
+      prometheus:
+        service:
+          type: NodePort
+      grafana:
+        enabled: false
+        grafana.ini:
+          auth:
+            disable_login_form: true
+            disable_signout_menu: true
+          auth.anonymous:
+            enabled: true
+            org_role: Viewer
+        service:
+          type: LoadBalancer
+        persistence:
+          enabled: true
+          size: 1Gi
+    helm_flags: "--wait"  # Additional Helm flags for this application's installation
+    verify_install: true  # Verify the installation of Prometheus
+    verify_install_timeout: 600  # Timeout for verification (in seconds)
+    skip_on_verify_fail: false  # Do not skip if verification fails
+
+  - name: "postgresql"
+    skip_installation: false  # Do not skip the installation of postgresql
+    use_global_kubeconfig: true  # Use global kubeconfig for postgresql
+    namespace: "kt-postgresql"  # Namespace where postgresql will be installed
+    release: "kt-postgresql"  # Helm release name for postgresql
+    chart: "postgresql"  # Helm chart name for postgresql
+    repo_url: "oci://registry-1.docker.io/bitnamicharts/postgresql"  # Helm repository URL for postgresql
+    version: "16.2.1"  # Version of the postgresql stack to install
+    specific_use_local_charts: true  # Use local charts for this application
+    values_file: ""  # Path to an external values file, if any
+    inline_values:  # Inline Helm values for postgresql
+      auth:
+        postgresPassword: "postgres"  # Explicit password (use if not relying on `existingSecret`)
+        username: "postgres"  # Explicit username (fallback if `existingSecret` is not used)
+        password: "postgres"  # Password for PostgreSQL (optional)
+        database: "postgres"  # Default database to create
+      primary:
+        persistence:
+          enabled: true  # Enable persistent storage for PostgreSQL
+          size: 10Gi  # Size of the Persistent Volume Claim
+    helm_flags: "--wait"  # Additional Helm flags for this application's installation
+    verify_install: true  # Verify the installation of postgresql
+    verify_install_timeout: 600  # Timeout for verification (in seconds)
+    skip_on_verify_fail: false  # Do not skip if verification fails

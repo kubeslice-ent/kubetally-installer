@@ -1,0 +1,98 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: kubeslice-api-gw
+  name: kubeslice-api-gw
+spec:
+  ports:
+    - name: http
+      port: 8080
+      protocol: TCP
+      targetPort: 3000
+  selector:
+    app: kubeslice-api-gw
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: kubeslice-api-gw
+  name: kubeslice-api-gw
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kubeslice-api-gw
+  template:
+    metadata:
+      labels:
+        app: kubeslice-api-gw
+    spec:
+      containers:
+        - image: '{{ .Values.global.imageRegistry }}/{{ .Values.kubeslice.apigw.image }}:{{ .Values.kubeslice.apigw.tag }}'
+          imagePullPolicy: '{{ .Values.kubeslice.apigw.pullPolicy }}'
+          env:
+            - name: KUBESLICE_CONTROLLER_PROMETHEUS
+              value: {{ .Values.kubeslice.prometheus.url }}
+            - name: KUBESLICE_WORKER_INSTALLER_IMAGE
+              value: '{{ .Values.global.imageRegistry }}/{{ .Values.kubeslice.workerinstaller.image }}:{{ .Values.kubeslice.workerinstaller.tag }}'
+            - name: KUBESLICE_WORKER_INSTALLER_IMAGE_PULL_POLICY
+              value: '{{ .Values.kubeslice.workerinstaller.pullPolicy}}'
+            - name: COST_API_URI
+              value: {{ .Values.kubeTally.costApiUrl }}
+          name: kubeslice-api-gw
+          ports:
+            - containerPort: 3000
+              protocol: TCP
+          volumeMounts:
+            - mountPath: /app/secrets
+              name: oidc-secrets
+            - mountPath: /app/config/product.json
+              subPath: product.json
+              name: product-config
+      {{- if .Values.imagePullSecretsName }}
+      imagePullSecrets:
+        - name: {{ .Values.imagePullSecretsName }}
+      {{- end }}
+      restartPolicy: Always
+      serviceAccount: kubeslice-api-gw
+      serviceAccountName: kubeslice-api-gw
+      volumes:
+        - name: oidc-secrets
+          secret:
+            secretName: kubeslice-ui-oidc
+            optional: true
+        - name: product-config
+          projected:
+            sources:
+              - configMap:
+                  name: kubeslice-ui-json-config
+      tolerations:
+        - operator: "Exists"
+---
+# create configmap called worker-chart-options
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: worker-chart-options
+data:
+  # set the chart options
+  workerChartOptions.yaml: |
+    workerChartOptions:
+      metricsInsecure: # [Optional] Default is false. Set to true if required to disable TLS for metrics server.
+      repository: https://kubeslice.aveshalabs.io/repository/kubetally-helm-ent-prod/  # [Optional] Helm repository URL for worker charts. Default is `https://kubeslice.aveshalabs.io/repository/kubetally-helm-ent-prod/`
+      releaseName: kubetally-worker # [Optional] Release name of kubeslice-worker. Default is `kubetally-worker`
+      chartName: kubetally-worker # [Optional] Name of the chart. Default is `kubetally-worker`
+      chartVersion: # [Optional] Version of the chart. Default is the latest version
+      debug: # [Optional] Default is false. Set to true if required to enable debug logs for kubetally-worker
+      helmCredentials:
+        username: # [Optional] Required for dev-charts/dev-charts-ent
+        password: # [Optional] Required for dev-charts/dev-charts-ent
+      imagePullSecrets:
+        repository: https://index.docker.io/v1/ # [Optional] Required for dev-charts-ent
+        username: aveshadev # [Optional] Required for dev-charts-ent
+        password: dckr_pat_xQ0YRdboZ00Aj8sGoFeUDlFTfRg # [Optional] Required for dev-charts-ent
+        email: # [Optional] Required for dev-charts-ent
