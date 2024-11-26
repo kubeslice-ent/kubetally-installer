@@ -213,3 +213,6 @@ additional_apps:
     verify_install: true  # Verify the installation of postgresql
     verify_install_timeout: 600  # Timeout for verification (in seconds)
     skip_on_verify_fail: false  # Do not skip if verification fails
+
+# Command execution settings
+run_commands: false  # Enable the execution of commands defined in the YAML
