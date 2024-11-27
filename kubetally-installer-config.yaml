@@ -121,8 +121,6 @@ kubeslice_worker:
     inline_values:  # Inline Helm values for the worker chart
       global:
         imageRegistry: docker.io/aveshasystems
-      kubesliceNetworking:
-        enabled: false  # Disable Kubeslice networking for this worker
       metrics:
         insecure: true  # Allow insecure connections for metrics
     helm_flags: "--atomic"  # Additional Helm flags for the worker installation
