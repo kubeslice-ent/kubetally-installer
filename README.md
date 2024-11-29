@@ -20,7 +20,7 @@ The Kubetally Installer Script is a Bash script designed to streamline the insta
 Before you begin, ensure the following steps are completed:
 
 1. **📝 Registration:**
-   - Complete the registration process at [Avesha Registration](https://avesha.io/kubeslice-registration) to receive the image pull secrets required for running the script.
+   - Complete the registration process at [Avesha Registration](https://avesha.io/kubetally-registration) to receive the image pull secrets required for running the script.
 
 2. **🔧 Required Binaries:**
    - Verify that the following binaries are installed and available in your system's `PATH`:
