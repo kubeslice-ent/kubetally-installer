@@ -171,24 +171,24 @@ get_lb_external_ip() {
     fi
 }
 
-get_node_external_ip() {
-    local kubeconfig="$1"
-    local kubecontext="$2"
-    # Print the input values (redirected to stderr)
-    echo "🔧 get_node_external_ip:" >&2
-    echo "  🗂️  Kubeconfig: $kubeconfig" >&2
-    echo "  🌐 Kubecontext: $kubecontext" >&2
+# get_node_external_ip() {
+#     local kubeconfig="$1"
+#     local kubecontext="$2"
+#     # Print the input values (redirected to stderr)
+#     echo "🔧 get_node_external_ip:" >&2
+#     echo "  🗂️  Kubeconfig: $kubeconfig" >&2
+#     echo "  🌐 Kubecontext: $kubecontext" >&2
 
-    # Retrieve only the first ExternalIP
-    external_ip=$(kubectl --kubeconfig "$kubeconfig" --context "$kubecontext" get nodes -o jsonpath='{.items[0].status.addresses[?(@.type=="ExternalIP")].address}' | awk '{print $1}')
+#     # Retrieve only the first ExternalIP
+#     external_ip=$(kubectl --kubeconfig "$kubeconfig" --context "$kubecontext" get nodes -o jsonpath='{.items[0].status.addresses[?(@.type=="ExternalIP")].address}' | awk '{print $1}')
 
-    if [ -n "$external_ip" ]; then
-        echo "$external_ip"
-    else
-        echo "No external IP found for any node." >&2
-        return 1
-    fi
-}
+#     if [ -n "$external_ip" ]; then
+#         echo "$external_ip"
+#     else
+#         echo "No external IP found for any node." >&2
+#         return 1
+#     fi
+# }
 
 
 kubeaccess_precheck() {
@@ -545,43 +545,43 @@ kubeslice_pre_check() {
             worker_cluster_endpoint=$(get_api_server_url "$kubeconfig_path" "$kubecontext")
             echo "✔️  Successfully accessed worker cluster '$worker_name'. Kubernetes endpoint: $worker_cluster_endpoint"
 
-            # Check for nodes labeled with 'kubeslice.io/node-type=gateway'
-            echo "🔍 Checking for nodes labeled 'kubeslice.io/node-type=gateway' in worker cluster '$worker_name'..."
-            gateway_node_count=$(kubectl get nodes --kubeconfig $kubeconfig_path $context_arg -l kubeslice.io/node-type=gateway --no-headers | wc -l)
+            # # Check for nodes labeled with 'kubeslice.io/node-type=gateway'
+            # echo "🔍 Checking for nodes labeled 'kubeslice.io/node-type=gateway' in worker cluster '$worker_name'..."
+            # gateway_node_count=$(kubectl get nodes --kubeconfig $kubeconfig_path $context_arg -l kubeslice.io/node-type=gateway --no-headers | wc -l)
 
-            if [ "$gateway_node_count" -lt 1 ]; then
-                if [ "$ADD_NODE_LABEL" = "true" ]; then
-                    echo "⚠️  No nodes labeled with 'kubeslice.io/node-type=gateway' found. Attempting to label nodes..."
+        #     if [ "$gateway_node_count" -lt 1 ]; then
+        #         if [ "$ADD_NODE_LABEL" = "true" ]; then
+        #             echo "⚠️  No nodes labeled with 'kubeslice.io/node-type=gateway' found. Attempting to label nodes..."
 
-                    # Attempt to label nodes with external IPs first
-                    nodes_with_external_ips=$(kubectl get nodes --kubeconfig $kubeconfig_path $context_arg -o jsonpath='{range .items[*]}{@.metadata.name} {@.status.addresses[?(@.type=="ExternalIP")].address}{"\n"}{end}' | grep -v '^\s*$' | awk '{print $1}' | head -n 2)
+        #             # Attempt to label nodes with external IPs first
+        #             nodes_with_external_ips=$(kubectl get nodes --kubeconfig $kubeconfig_path $context_arg -o jsonpath='{range .items[*]}{@.metadata.name} {@.status.addresses[?(@.type=="ExternalIP")].address}{"\n"}{end}' | grep -v '^\s*$' | awk '{print $1}' | head -n 2)
 
-                    if [ -n "$nodes_with_external_ips" ]; then
-                        echo "✔️  Nodes with external IPs found: $nodes_with_external_ips"
-                        nodes_to_label=$nodes_with_external_ips
-                    else
-                        echo "⚠️  No nodes with external IPs found. Falling back to any available nodes."
-                        nodes_to_label=$(kubectl get nodes --kubeconfig $kubeconfig_path $context_arg --no-headers | awk '{print $1}' | head -n 2)
-                    fi
+        #             if [ -n "$nodes_with_external_ips" ]; then
+        #                 echo "✔️  Nodes with external IPs found: $nodes_with_external_ips"
+        #                 nodes_to_label=$nodes_with_external_ips
+        #             else
+        #                 echo "⚠️  No nodes with external IPs found. Falling back to any available nodes."
+        #                 nodes_to_label=$(kubectl get nodes --kubeconfig $kubeconfig_path $context_arg --no-headers | awk '{print $1}' | head -n 2)
+        #             fi
 
-                    if [ -z "$nodes_to_label" ]; then
-                        echo "❌ Error: No nodes available to label."
-                        exit 1
-                    fi
+        #             if [ -z "$nodes_to_label" ]; then
+        #                 echo "❌ Error: No nodes available to label."
+        #                 exit 1
+        #             fi
 
-                    for node in $nodes_to_label; do
-                        echo "🔧 Labeling node '$node' with 'kubeslice.io/node-type=gateway'..."
-                        kubectl label node "$node" kubeslice.io/node-type=gateway --kubeconfig $kubeconfig_path $context_arg --overwrite
-                    done
-                    echo "✔️  Nodes labeled successfully."
-                else
-                    echo "❌ Error: ADD_NODE_LABEL is not enabled, and no nodes are labeled with 'kubeslice.io/node-type=gateway'."
-                    exit 1
-                fi
-            else
-                echo "✔️  Worker cluster '$worker_name' has at least one node labeled with 'kubeslice.io/node-type=gateway'."
-            fi
-            echo "-----------------------------------------"
+        #             for node in $nodes_to_label; do
+        #                 echo "🔧 Labeling node '$node' with 'kubeslice.io/node-type=gateway'..."
+        #                 kubectl label node "$node" kubeslice.io/node-type=gateway --kubeconfig $kubeconfig_path $context_arg --overwrite
+        #             done
+        #             echo "✔️  Nodes labeled successfully."
+        #         else
+        #             echo "❌ Error: ADD_NODE_LABEL is not enabled, and no nodes are labeled with 'kubeslice.io/node-type=gateway'."
+        #             exit 1
+        #         fi
+        #     else
+        #         echo "✔️  Worker cluster '$worker_name' has at least one node labeled with 'kubeslice.io/node-type=gateway'."
+        #     fi
+            # echo "-----------------------------------------"
         else
             echo "⏩ Skipping validation for worker cluster '$worker_name' as installation is skipped."
         fi
@@ -2510,13 +2510,13 @@ register_clusters_in_controller() {
     echo "  namespace=$namespace"
     echo "-----------------------------------------"
 
-    node_ip=""
-    while [ -z "${node_ip}" ] ; do 
-        node_ip="$(get_node_external_ip "${kubeconfig_path}" "${kubecontext}")"
-        sleep 10 
-    done
+    # node_ip=""
+    # while [ -z "${node_ip}" ] ; do 
+    #     node_ip="$(get_node_external_ip "${kubeconfig_path}" "${kubecontext}")"
+    #     sleep 10 
+    # done
     
-    echo "Telemetry endpoint url : http://${node_ip}:32700"
+    # echo "Telemetry endpoint url : http://${node_ip}:32700"
     
     for registration in "${KUBESLICE_CLUSTER_REGISTRATIONS[@]}"; do
         IFS="|" read -r cluster_name project_name telemetry_enabled telemetry_endpoint telemetry_provider geo_location_provider geo_location_region <<<"$registration"
@@ -2599,14 +2599,14 @@ prepare_worker_values_file() {
         #yq eval ".kubeslice_worker.inline_values.kubetally.grafanaDashboardBaseUrl = \"${grafana_url}\" | del(.null)" --inplace "${KUBETALLY_INPUT_YAML}"
         # yq eval ".kubeslice_worker[$worker_index].inline_values.kubetally.grafanaDashboardBaseUrl = \"${grafana_url}\" | del(.null)" --inplace "${KUBETALLY_INPUT_YAML}"
 
-        node_ip=""
-        while [ -z "${node_ip}" ] ; do 
-            node_ip="$(get_node_external_ip "${kubeconfigname}" "${kubecontextname}")"
-            sleep 10 
-        done
+        # node_ip=""
+        # while [ -z "${node_ip}" ] ; do 
+        #     node_ip="$(get_node_external_ip "${kubeconfigname}" "${kubecontextname}")"
+        #     sleep 10 
+        # done
 
-        yq eval ".cluster_registration[${worker_index}].telemetry.endpoint = \"http://${node_ip}:32700\"" --inplace "${KUBETALLY_INPUT_YAML}"
-        echo "Telemetry endpoint url : http://${node_ip}:32700"
+        # yq eval ".cluster_registration[${worker_index}].telemetry.endpoint = \"http://${node_ip}:32700\"" --inplace "${KUBETALLY_INPUT_YAML}"
+        # echo "Telemetry endpoint url : http://${node_ip}:32700"
         
         echo "  Extracted values for worker $worker_name:"
         echo "  Worker Name: $worker_name"
