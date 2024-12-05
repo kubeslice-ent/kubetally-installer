@@ -138,7 +138,7 @@ global_image_pull_secret:
   password: ""  # Global Docker registry password
 
 # Node labeling settings
-add_node_label: true  # Enable node labeling during installation
+add_node_label: false  # Enable node labeling during installation
 
 # Kubeconfig settings
 global_kubeconfig: ""  # Relative Path to the global kubeconfig file must be in script directory (used if no specific kubeconfig is provided) - Mandatory
@@ -176,9 +176,6 @@ kubeslice_controller:
     kubeslice:
       controller: 
         endpoint: ""  # Endpoint of the controller API server; auto-fetched if left empty
-        migration:
-          minio:
-            install: "false"  # Do not install MinIO during migration
     prometheus:
       server:
         persistentVolume:       # Enable/disable Persistent Volume Claim for Prometheus data
@@ -222,13 +219,11 @@ kubeslice_worker:
     skip_installation: false  # Do not skip the installation of the worker
     specific_use_local_charts: true  # Override to use local charts for this worker
     namespace: "kubeslice-system"  # Kubernetes namespace for this worker
-    release: "kt-worker1"  # Helm release name for the worker
+    release: "kt-worker"  # Helm release name for the worker
     chart: "kubetally-worker"  # Helm chart name for the worker
     inline_values:  # Inline Helm values for the worker chart
       global:
         imageRegistry: docker.io/aveshasystems
-      kubesliceNetworking:
-        enabled: false  # Disable Kubeslice networking for this worker
       metrics:
         insecure: true  # Allow insecure connections for metrics
     helm_flags: "--atomic"  # Additional Helm flags for the worker installation
@@ -319,6 +314,10 @@ additional_apps:
     verify_install: true  # Verify the installation of postgresql
     verify_install_timeout: 600  # Timeout for verification (in seconds)
     skip_on_verify_fail: false  # Do not skip if verification fails
+
+# Command execution settings
+run_commands: false  # Enable the execution of commands defined in the YAML
+
 
 ```
 
