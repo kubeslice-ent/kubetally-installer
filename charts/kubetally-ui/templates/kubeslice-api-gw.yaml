@@ -82,17 +82,19 @@ data:
   # set the chart options
   workerChartOptions.yaml: |
     workerChartOptions:
+      controllerChartName: {{- if eq .Values.kubeslice.productName "kubetally" }} kubetally-controller {{- end }} # [Optional] Name of the controller chart. Default is `kubeslice-controller`
       metricsInsecure: # [Optional] Default is false. Set to true if required to disable TLS for metrics server.
-      repository: https://kubeslice.aveshalabs.io/repository/kubetally-helm-ent-prod/  # [Optional] Helm repository URL for worker charts. Default is `https://kubeslice.aveshalabs.io/repository/kubetally-helm-ent-prod/`
-      releaseName: kubetally-worker # [Optional] Release name of kubeslice-worker. Default is `kubetally-worker`
-      chartName: kubetally-worker # [Optional] Name of the chart. Default is `kubetally-worker`
+      networkingEnabled: {{- if eq .Values.kubeslice.productName "kubetally" }} false   {{- end }} # [Optional] Default is true. Set to false if required to disable networking.
+      repository:  {{- if eq .Values.kubeslice.productName "kubetally" }} 'https://kubeslice.aveshalabs.io/repository/kubetally-helm-ent-prod/'   {{- end }}  # [Optional] Helm repository URL for worker charts. Default is `https://kubeslice.aveshalabs.io/repository/kubeslice-helm-ent-prod/`
+      releaseName:  {{- if eq .Values.kubeslice.productName "kubetally" }} kubetally-worker   {{- end }}  # [Optional] Release name of kubeslice-worker. Default is `kubeslice-worker`
+      chartName: {{- if eq .Values.kubeslice.productName "kubetally" }} kubetally-worker   {{- end }}  # [Optional] Name of the chart. Default is `kubeslice-worker`
       chartVersion: # [Optional] Version of the chart. Default is the latest version
-      debug: # [Optional] Default is false. Set to true if required to enable debug logs for kubetally-worker
+      debug: # [Optional] Default is false. Set to true if required to enable debug mode.
       helmCredentials:
         username: # [Optional] Required for dev-charts/dev-charts-ent
         password: # [Optional] Required for dev-charts/dev-charts-ent
       imagePullSecrets:
-        repository: https://index.docker.io/v1/ # [Optional] Required for dev-charts-ent
-        username: aveshadev # [Optional] Required for dev-charts-ent
-        password: dckr_pat_xQ0YRdboZ00Aj8sGoFeUDlFTfRg # [Optional] Required for dev-charts-ent
+        repository: # [Optional] Required for dev-charts-ent
+        username: # [Optional] Required for dev-charts-ent
+        password: # [Optional] Required for dev-charts-ent
         email: # [Optional] Required for dev-charts-ent

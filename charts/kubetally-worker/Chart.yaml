@@ -1,5 +1,5 @@
 apiVersion: v2
-description:  KubeSlice operator - A Helm chart for managing life-cycle management of KubeSlice
+description:  Kubetally operator - A Helm chart for life-cycle management of Kuebtally
 name: kubetally-worker
 type: application
 maintainers:
@@ -28,14 +28,5 @@ keywords:
 - application
 kubeVersion: '>= 1.19.0-0'
 home: https://avesha.io/products/product-slice
-dependencies:
-  - name: nsm
-    repository: file://./charts/nsm
-    version: 0.6.4
-    condition: kubesliceNetworking.enabled
-  - name: netop
-    repository: file://./charts/netop
-    version: 0.2.0
-    condition: kubesliceNetworking.enabled
-version: 1.14.0
-appVersion: 1.14.0
+version: 1.15.0
+appVersion: 1.15.0

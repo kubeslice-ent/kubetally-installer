@@ -374,7 +374,6 @@ spec:
             - --project-namespace-prefix={{ required "A valid value is required!" .Values.kubeslice.controller.projectnsPrefix }}
             - --controller-end-point={{ required "A valid value is required!" .Values.kubeslice.controller.endpoint }}
             - --prometheus-service-endpoint={{ required "A valid value is required!" .Values.kubeslice.prometheus.url}}
-            - --ovpn-job-image={{ .Values.global.imageRegistry }}/{{ .Values.kubeslice.ovpnJob.image }}:{{ .Values.kubeslice.ovpnJob.tag }}
             - --license-mode={{ .Values.kubeslice.license.mode }}
             - --license-customer-name={{ .Values.kubeslice.license.customerName }}
             - --license-type={{.Values.kubeslice.license.type }}
