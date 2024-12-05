@@ -171,24 +171,24 @@ get_lb_external_ip() {
     fi
 }
 
-get_node_external_ip() {
-    local kubeconfig="$1"
-    local kubecontext="$2"
-    # Print the input values (redirected to stderr)
-    echo "🔧 get_node_external_ip:" >&2
-    echo "  🗂️  Kubeconfig: $kubeconfig" >&2
-    echo "  🌐 Kubecontext: $kubecontext" >&2
+# get_node_external_ip() {
+#     local kubeconfig="$1"
+#     local kubecontext="$2"
+#     # Print the input values (redirected to stderr)
+#     echo "🔧 get_node_external_ip:" >&2
+#     echo "  🗂️  Kubeconfig: $kubeconfig" >&2
+#     echo "  🌐 Kubecontext: $kubecontext" >&2
 
-    # Retrieve only the first ExternalIP
-    external_ip=$(kubectl --kubeconfig "$kubeconfig" --context "$kubecontext" get nodes -o jsonpath='{.items[0].status.addresses[?(@.type=="ExternalIP")].address}' | awk '{print $1}')
+#     # Retrieve only the first ExternalIP
+#     external_ip=$(kubectl --kubeconfig "$kubeconfig" --context "$kubecontext" get nodes -o jsonpath='{.items[0].status.addresses[?(@.type=="ExternalIP")].address}' | awk '{print $1}')
 
-    if [ -n "$external_ip" ]; then
-        echo "$external_ip"
-    else
-        echo "No external IP found for any node." >&2
-        return 1
-    fi
-}
+#     if [ -n "$external_ip" ]; then
+#         echo "$external_ip"
+#     else
+#         echo "No external IP found for any node." >&2
+#         return 1
+#     fi
+# }
 
 
 kubeaccess_precheck() {
@@ -2510,13 +2510,13 @@ register_clusters_in_controller() {
     echo "  namespace=$namespace"
     echo "-----------------------------------------"
 
-    node_ip=""
-    while [ -z "${node_ip}" ] ; do 
-        node_ip="$(get_node_external_ip "${kubeconfig_path}" "${kubecontext}")"
-        sleep 10 
-    done
+    # node_ip=""
+    # while [ -z "${node_ip}" ] ; do 
+    #     node_ip="$(get_node_external_ip "${kubeconfig_path}" "${kubecontext}")"
+    #     sleep 10 
+    # done
     
-    echo "Telemetry endpoint url : http://${node_ip}:32700"
+    # echo "Telemetry endpoint url : http://${node_ip}:32700"
     
     for registration in "${KUBESLICE_CLUSTER_REGISTRATIONS[@]}"; do
         IFS="|" read -r cluster_name project_name telemetry_enabled telemetry_endpoint telemetry_provider geo_location_provider geo_location_region <<<"$registration"
@@ -2599,14 +2599,14 @@ prepare_worker_values_file() {
         #yq eval ".kubeslice_worker.inline_values.kubetally.grafanaDashboardBaseUrl = \"${grafana_url}\" | del(.null)" --inplace "${KUBETALLY_INPUT_YAML}"
         # yq eval ".kubeslice_worker[$worker_index].inline_values.kubetally.grafanaDashboardBaseUrl = \"${grafana_url}\" | del(.null)" --inplace "${KUBETALLY_INPUT_YAML}"
 
-        node_ip=""
-        while [ -z "${node_ip}" ] ; do 
-            node_ip="$(get_node_external_ip "${kubeconfigname}" "${kubecontextname}")"
-            sleep 10 
-        done
+        # node_ip=""
+        # while [ -z "${node_ip}" ] ; do 
+        #     node_ip="$(get_node_external_ip "${kubeconfigname}" "${kubecontextname}")"
+        #     sleep 10 
+        # done
 
-        yq eval ".cluster_registration[${worker_index}].telemetry.endpoint = \"http://${node_ip}:32700\"" --inplace "${KUBETALLY_INPUT_YAML}"
-        echo "Telemetry endpoint url : http://${node_ip}:32700"
+        # yq eval ".cluster_registration[${worker_index}].telemetry.endpoint = \"http://${node_ip}:32700\"" --inplace "${KUBETALLY_INPUT_YAML}"
+        # echo "Telemetry endpoint url : http://${node_ip}:32700"
         
         echo "  Extracted values for worker $worker_name:"
         echo "  Worker Name: $worker_name"

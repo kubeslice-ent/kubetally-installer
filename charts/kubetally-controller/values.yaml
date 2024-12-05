@@ -15,11 +15,11 @@ global:
     postgresSecretName: kubetally-db-credentials   # Default value, secret name can be overridden
 
     # Ensure to configure the mandatory PostgreSQL database settings when 'kubetally enable' is true.
-    postgresAddr: ""                         # Optional, can be specified here or retrieved from the secret
+    postgresAddr:                         # Optional, can be specified here or retrieved from the secret
     postgresPort:                          # Optional, can be specified here or retrieved from the secret
-    postgresUser: ""                         # Optional, can be specified here or retrieved from the secret
-    postgresPassword: ""                     # Optional, can be specified here or retrieved from the secret
-    postgresDB: ""                           # Optional, can be specified here or retrieved from the secret
+    postgresUser:                        # Optional, can be specified here or retrieved from the secret
+    postgresPassword:                     # Optional, can be specified here or retrieved from the secret
+    postgresDB:                          # Optional, can be specified here or retrieved from the secret
     postgresSslmode: require
 
     # Service type for price Service Type
@@ -61,43 +61,13 @@ kubeslice:
     # Image name for the KubeSlice controller
     image: kubeslice-controller-ent
     # Image tag for the KubeSlice controller
-    tag: 1.14.0
+    tag: 1.15.0
     # Image pull policy for the KubeSlice controller
     pullPolicy: IfNotPresent
     # Configuration for kubeTally, which handles chargeback and metrics
     kubeTally:
       # Interval for cleaning up metrics when a worker cluster stops communicating
       metricsCleanupInterval: 15m
-    # Configuration for replication using MinIO
-    replication:
-     # Image name for MinIO
-      image: minio
-     # Image tag for MinIO
-      tag: RELEASE.2024-07-16T23-46-41Z
-     # Configuration for MinIO
-      minio:
-        # Whether to install MinIO
-        install: "true"
-        # Storage size for MinIO
-        storage: 1Gi
-        # Username for MinIO
-        username: minioadmin
-        # Password for MinIO
-        password: minioadmin
-        # service options
-        service:
-          # minio service type
-          type: "LoadBalancer"
-          # minio service annotations
-          annotations: {}
-       
-
-  # Configuration for the OpenVPN job
-  ovpnJob:
-    # Image name for the gateway certificates generator
-    image: gateway-certs-generator
-    # Image tag for the gateway certificates generator
-    tag: 0.5.0
 
   # Configuration for Prometheus
   prometheus:
@@ -119,7 +89,6 @@ kubeslice:
     mode: auto
     # please give company-name or user-name as customerName
     customerName: ""
-
 
 prometheus:
   # Secrets for image pulling
