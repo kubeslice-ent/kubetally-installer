@@ -2293,5 +2293,5 @@ fi
 trap display_summary EXIT
 
 echo "========================================="
-echo "    Kubetally UnInstaller Script Complete        "
+echo "    EGS UnInstaller Script Complete        "
 echo "========================================="
