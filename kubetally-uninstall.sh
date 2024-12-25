@@ -1561,7 +1561,7 @@ uninstall_helm_chart_and_cleanup() {
 
             if helm status $release_name --namespace $namespace --kubeconfig $kubeconfig_path $context_arg >/dev/null 2>&1; then
                 echo "❌ Error: Helm release '$release_name' was not fully uninstalled. Deleting all resources manually..." >&2
-                #delete_kubernetes_objects
+                delete_kubernetes_objects
                 echo "🔄 Retrying Helm uninstallation..." >&2
                 uninstall_helm_chart
                 if helm status $release_name --namespace $namespace --kubeconfig $kubeconfig_path $context_arg >/dev/null 2>&1; then
@@ -1582,9 +1582,12 @@ uninstall_helm_chart_and_cleanup() {
         echo "⚠️ Warning: Helm release '$release_name' not found in namespace '$namespace'." >&2
     fi
 
-    echo "-----------------------------------------" >&2
-    echo "✔️ Completed uninstallation and cleanup for release: $release_name" >&2
-    echo "-----------------------------------------" >&2
+    echo "-----------------------------------------"
+    echo "🧹 Cleaning up any remaining Kubernetes objects..."
+    delete_kubernetes_objects
+    echo "-----------------------------------------"
+    echo "✔️ Completed uninstallation and cleanup for release: $release_name"
+    echo "-----------------------------------------"
 }
 
 unregister_clusters_in_controller() {
