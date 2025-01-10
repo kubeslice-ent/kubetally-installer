@@ -1,0 +1,81 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: install-config
+data:
+  kubeconfig: |
+    
+  docker_username: ""
+  docker_password: ""
+  branch_name: "main"
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: kubetally-installer
+spec:
+  ttlSecondsAfterFinished: 100
+  template:
+    spec:
+      volumes:
+      - name: config-volume
+        configMap:
+          name: install-config
+      containers:
+      - name: installer
+        image: ubuntu:22.04
+        volumeMounts:
+        - name: config-volume
+          mountPath: /config
+        command: ["/bin/bash"]
+        args:
+        - -c
+        - |
+          set -e
+          
+          # Install dependencies
+          apt-get update
+          apt-get install -y curl wget sudo git
+          
+          # Install tools
+          wget -O jq https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64
+          chmod +x ./jq && mv jq /usr/bin
+          
+          curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable-1.23.txt)/bin/linux/amd64/kubectl"
+          chmod +x kubectl && mv kubectl /usr/local/bin/
+          
+          wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -O /usr/bin/yq
+          chmod +x /usr/bin/yq
+          
+          HELM_VERSION="v3.15.0"
+          curl -LO https://get.helm.sh/helm-${HELM_VERSION}-linux-amd64.tar.gz
+          tar -zxvf helm-${HELM_VERSION}-linux-amd64.tar.gz
+          mv linux-amd64/helm /usr/local/bin/helm
+          rm -rf linux-amd64 helm-${HELM_VERSION}-linux-amd64.tar.gz
+          
+          # Setup kubeconfig
+          cp /config/kubeconfig controller
+          
+          # Clone repo
+          
+          BRANCH_NAME=$(cat /config/branch_name)
+          git clone --branch $BRANCH_NAME https://github.com/kubeslice-ent/kubetally-installer.git
+          cd kubetally-installer
+          cp ../controller .
+          
+          # Configure installation
+          export CURRENT_PWD=$(pwd)
+          export GLOBAL_KUBECONTEXT=$(kubectl --kubeconfig=controller config current-context)
+          export DOCKER_USERNAME=$(cat /config/docker_username)
+          export DOCKER_PASSWORD=$(cat /config/docker_password)
+          
+          yq e '.base_path = strenv(CURRENT_PWD)' -i kubetally-installer-config.yaml
+          yq e '.global_image_pull_secret.username = strenv(DOCKER_USERNAME)' -i kubetally-installer-config.yaml
+          yq e '.global_image_pull_secret.password = strenv(DOCKER_PASSWORD)' -i kubetally-installer-config.yaml
+          yq e '.global_kubeconfig = "controller"' -i kubetally-installer-config.yaml
+          yq e '.global_kubecontext = strenv(GLOBAL_KUBECONTEXT)' -i kubetally-installer-config.yaml
+          
+          # Install
+          ./kubetally-uninstall.sh --input-yaml kubetally-installer-config.yaml
+      restartPolicy: Never
+  backoffLimit: 4
