@@ -4,10 +4,10 @@ metadata:
   name: kubeconfig-config
 data:
   kubeconfig: |
+    
 
 
-  
-  ---
+---
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -235,6 +235,7 @@ kind: Job
 metadata:
   name: kubetally-installer
 spec:
+  ttlSecondsAfterFinished: 100
   template:
     spec:
       volumes:
@@ -247,6 +248,8 @@ spec:
       containers:
       - name: installer
         image: ""
+        command: ["./kubetally-installer.sh"]
+        args: ["--input-yaml", "kubetally-installer-config.yaml"]
         volumeMounts:
         - name: kubeconfig-volume
           mountPath: /kubetally-installer/controller
