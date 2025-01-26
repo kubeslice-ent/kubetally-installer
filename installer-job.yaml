@@ -247,7 +247,7 @@ spec:
           name: installer-config
       containers:
       - name: installer
-        image: ""
+        image: aveshadev/kubetally-installer:247d296c-001c-4f04-8787-1aa4fafc63d7-SNAPSHOT
         command: ["./kubetally-installer.sh"]
         args: ["--input-yaml", "kubetally-installer-config.yaml"]
         volumeMounts:
