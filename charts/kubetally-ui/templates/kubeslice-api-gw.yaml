@@ -92,7 +92,7 @@ data:
         username: # [Optional] Required for dev-charts/dev-charts-ent
         password: # [Optional] Required for dev-charts/dev-charts-ent
       imagePullSecrets:
-        repository: https://index.docker.io/v1/ # [Optional] Required for dev-charts-ent
-        username: aveshadev # [Optional] Required for dev-charts-ent
-        password:  # [Optional] Required for dev-charts-ent
+        repository: # [Optional] Required for dev-charts-ent
+        username: # [Optional] Required for dev-charts-ent
+        password: # [Optional] Required for dev-charts-ent
         email: # [Optional] Required for dev-charts-ent
